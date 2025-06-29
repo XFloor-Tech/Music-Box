@@ -13,7 +13,7 @@ class AudioPlayer {
   private _audioBufferSource;
   private _gain;
 
-  private constructor(args: unknown) {
+  private constructor() {
     this._audioContext = new AudioContext();
     this._audioBufferSource = this._audioContext.createBufferSource();
 
@@ -22,12 +22,12 @@ class AudioPlayer {
     this._gain.connect(this._audioContext.destination);
   }
 
-  public static getInstance(args: unknown) {
+  public static getInstance() {
     if (this._instance) {
       return this._instance;
     }
 
-    this._instance = new AudioPlayer(args);
+    this._instance = new AudioPlayer();
     return this._instance;
   }
 
@@ -35,17 +35,38 @@ class AudioPlayer {
     return this._audioContext.decodeAudioData(arrayBuffer);
   }
 
-  private playAudioBuffer(
+  private reconnectGain() {
+    this._gain.disconnect();
+    this._gain = this._audioContext.createGain();
+    this._audioBufferSource.connect(this._gain);
+    this._gain.connect(this._audioContext.destination);
+  }
+
+  private invalidateAudioBufferSource() {
+    this._audioBufferSource.disconnect();
+    this._audioBufferSource = this._audioContext.createBufferSource();
+    this.reconnectGain();
+  }
+
+  private async playAudioBuffer(
     audioBuffer: AudioBuffer,
     startParams?: AudioBufferStartParams,
   ) {
+    /** Invalidate existing source if there was a buffer and create a new source */
+    if (this._audioBufferSource.buffer) {
+      this.invalidateAudioBufferSource();
+    }
+
     this._audioBufferSource.buffer = audioBuffer;
-    this._audioBufferSource.connect(this._audioContext.destination);
+    // dont use another connect as we already connected it to gain
+    // this._audioBufferSource.connect(this._audioContext.destination);
+
     this._audioBufferSource.start(
       startParams?.when,
       startParams?.offset,
       startParams?.duration,
     );
+    this.resume();
   }
 
   public async playArrayBuffer(
@@ -53,16 +74,19 @@ class AudioPlayer {
     startParams?: AudioBufferStartParams,
   ) {
     const audioBuffer = await this.audioFromArrayBuffer(arrayBuffer);
-    this.playAudioBuffer(audioBuffer, startParams);
+    await this.playAudioBuffer(audioBuffer, startParams);
   }
 
-  public async playAudioFile(
+  // Move fetch logic to upper level
+  public async fetchAndPlayAudio(
     path: string,
     startParams?: AudioBufferStartParams,
   ) {
-    const response = await fetch(path);
-    const arrayBuffer = await response.arrayBuffer();
-    this.playArrayBuffer(arrayBuffer, startParams);
+    try {
+      const response = await fetch(path);
+      const arrayBuffer = await response.arrayBuffer();
+      await this.playArrayBuffer(arrayBuffer, startParams);
+    } catch {}
   }
 
   public closeContext() {
@@ -72,12 +96,16 @@ class AudioPlayer {
 
   public pause() {
     // maybe use source.stop() instead
-    this._audioContext.suspend();
+    if (this.getAudioState() === "running") {
+      this._audioContext.suspend();
+    }
   }
 
   public resume() {
     // maybe use source.start() instead
-    this._audioContext.resume();
+    if (this.getAudioState() === "suspended") {
+      this._audioContext.resume();
+    }
   }
 
   public setVolume(value: number) {
@@ -106,4 +134,4 @@ class AudioPlayer {
   }
 }
 
-export { AudioPlayer };
+export { AudioPlayer, type AudioBufferStartParams };
