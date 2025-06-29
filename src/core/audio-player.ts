@@ -13,6 +13,9 @@ class AudioPlayer {
   private _audioBufferSource;
   private _gain;
 
+  private _playerStartTime;
+  private _startOffset;
+
   private constructor() {
     this._audioContext = new AudioContext();
     this._audioBufferSource = this._audioContext.createBufferSource();
@@ -20,6 +23,9 @@ class AudioPlayer {
     this._gain = this._audioContext.createGain();
     this._audioBufferSource.connect(this._gain);
     this._gain.connect(this._audioContext.destination);
+
+    this._playerStartTime = 0;
+    this._startOffset = 0;
   }
 
   public static getInstance() {
@@ -57,6 +63,11 @@ class AudioPlayer {
       this.invalidateAudioBufferSource();
     }
 
+    // Set player start time after source is loaded
+    this._playerStartTime = this._audioContext.currentTime;
+    // Update start offset if provided
+    this._startOffset = startParams?.offset ?? 0;
+
     this._audioBufferSource.buffer = audioBuffer;
     // dont use another connect as we already connected it to gain
     // this._audioBufferSource.connect(this._audioContext.destination);
@@ -66,6 +77,8 @@ class AudioPlayer {
       startParams?.offset,
       startParams?.duration,
     );
+
+    // resume context if it was suspended
     this.resume();
   }
 
@@ -77,20 +90,10 @@ class AudioPlayer {
     await this.playAudioBuffer(audioBuffer, startParams);
   }
 
-  // Move fetch logic to upper level
-  public async fetchAndPlayAudio(
-    path: string,
-    startParams?: AudioBufferStartParams,
-  ) {
-    try {
-      const response = await fetch(path);
-      const arrayBuffer = await response.arrayBuffer();
-      await this.playArrayBuffer(arrayBuffer, startParams);
-    } catch {}
-  }
-
-  public closeContext() {
+  public closeContextSources() {
     this._audioBufferSource.stop();
+    this._audioBufferSource.disconnect();
+    this._gain.disconnect();
     this._audioContext.close();
   }
 
@@ -124,13 +127,38 @@ class AudioPlayer {
     return this._audioContext.currentTime;
   }
 
+  public getBufferDuration() {
+    const currentBuffer = this._audioBufferSource.buffer;
+    if (!currentBuffer) {
+      throw new Error("There's no buffer to get duration from");
+    }
+    return currentBuffer.duration;
+  }
+
   public changePlayTime(value: number) {
     const currentBuffer = this._audioBufferSource.buffer;
     if (value < 0 || !currentBuffer || value > currentBuffer.duration) {
-      throw new Error("There no buffer or provided value is out of range");
+      throw new Error("There's no buffer or provided value is out of range");
     }
 
     this._audioBufferSource.start(0, value);
+  }
+
+  public getVolumeValue() {
+    return this._gain.gain.value;
+  }
+
+  public getCurrentBufferProgress() {
+    const currentBuffer = this._audioBufferSource.buffer;
+    if (!currentBuffer) {
+      throw new Error("There's no buffer to get progress from");
+    }
+
+    const elapsed = this._audioContext.currentTime - this._playerStartTime;
+    const playbackRate = this._audioBufferSource.playbackRate.value;
+    const currentTime = this._startOffset + elapsed * playbackRate;
+
+    return currentTime;
   }
 }
 
