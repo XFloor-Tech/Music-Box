@@ -8,9 +8,22 @@ type StartAudioParams = {
   slider?: RefObject<HTMLInputElement | null>;
 };
 
-const useAudioPlayer = () => {
+type UseAudioPlayerParams = {
+  slider?: RefObject<HTMLInputElement | null>;
+};
+
+const useAudioPlayer = (params?: UseAudioPlayerParams) => {
+  const { slider } = params ?? {};
+
   const playerRef = useRef(AudioPlayer.getInstance());
   const progressIntervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  const stopPlayProgress = () => {
+    if (progressIntervalRef.current) {
+      clearInterval(progressIntervalRef.current);
+      progressIntervalRef.current = null;
+    }
+  };
 
   const initPlayProgress = useCallback(
     async (
@@ -20,17 +33,20 @@ const useAudioPlayer = () => {
       if (!sliderRef.current) return;
 
       sliderRef.current.value = startParams?.offset?.toString() ?? "0";
-      sliderRef.current.max = playerRef.current.getBufferDuration().toString();
+      sliderRef.current.max =
+        playerRef.current.getBufferDuration()?.toString() ?? "100";
 
       const updateProgress = () => {
+        const audioDuration = playerRef.current.getBufferDuration();
         const currentTime = playerRef.current.getCurrentBufferProgress();
+
         if (
-          !currentTime ||
+          currentTime === null ||
+          audioDuration === null ||
           !sliderRef.current ||
-          currentTime > playerRef.current.getBufferDuration()
+          currentTime > audioDuration
         ) {
-          if (progressIntervalRef.current)
-            clearInterval(progressIntervalRef.current);
+          stopPlayProgress();
           return;
         }
         sliderRef.current.value = currentTime.toString();
@@ -41,38 +57,49 @@ const useAudioPlayer = () => {
     [],
   );
 
-  const start = useCallback(
-    async ({ path, startParams, slider }: StartAudioParams) => {
+  const fetchAndStart = useCallback(
+    async ({ path, startParams }: StartAudioParams) => {
       const audio = await fetchAudioFromUrl(path);
       await playerRef.current.playArrayBuffer(audio, startParams);
+      stopPlayProgress();
       if (slider) await initPlayProgress(slider);
     },
-    [initPlayProgress],
+    [initPlayProgress, slider],
   );
 
-  const pause = useCallback(() => {
+  const pause = () => {
     playerRef.current.pause();
-  }, []);
+  };
 
-  const resume = useCallback(() => {
+  const resume = () => {
     playerRef.current.resume();
-  }, []);
+  };
 
-  const changeVolume = useCallback((value: number) => {
+  const changeVolume = (value: number) => {
     playerRef.current.setVolume(value);
-  }, []);
+  };
+
+  const changeProgress = useCallback(
+    async (value: number) => {
+      const audioDuration = playerRef.current.getBufferDuration();
+      const time = Math.max(0, Math.min(value, audioDuration ?? 0));
+      stopPlayProgress();
+      playerRef.current.setProgress(time);
+      if (slider) await initPlayProgress(slider);
+    },
+    [initPlayProgress, slider],
+  );
 
   /** Clean up all player related refs and close audio context */
   useEffect(() => {
     const player = playerRef.current;
     return () => {
-      if (progressIntervalRef.current)
-        clearInterval(progressIntervalRef.current);
+      stopPlayProgress();
       player.closeContextSources();
     };
   }, []);
 
-  return { start, pause, resume, changeVolume };
+  return { fetchAndStart, pause, resume, changeVolume, changeProgress };
 };
 
 export { useAudioPlayer };

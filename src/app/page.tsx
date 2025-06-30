@@ -4,13 +4,14 @@ import { ChangeEvent, useCallback, useRef } from "react";
 import { useAudioPlayer } from "@/core/useAudioPlayer";
 
 export default function Home() {
-  const { start, pause, resume, changeVolume } = useAudioPlayer();
-
   const progressSliderRef = useRef<HTMLInputElement | null>(null);
 
+  const { fetchAndStart, pause, resume, changeVolume, changeProgress } =
+    useAudioPlayer({ slider: progressSliderRef });
+
   const onPlayClick = useCallback(() => {
-    start({ path: "176.mp3", slider: progressSliderRef });
-  }, [start]);
+    fetchAndStart({ path: "176.mp3", slider: progressSliderRef });
+  }, [fetchAndStart]);
 
   const onPauseClick = useCallback(() => {
     pause();
@@ -27,6 +28,13 @@ export default function Home() {
     [changeVolume],
   );
 
+  const onSliderProgressChange = useCallback(
+    (event: ChangeEvent<HTMLInputElement>) => {
+      changeProgress(parseFloat(event.target.value));
+    },
+    [changeProgress],
+  );
+
   return (
     <div className="flex flex-row gap-4 align-center w-full">
       <button onClick={onPlayClick}>play</button>
@@ -37,6 +45,7 @@ export default function Home() {
         type="range"
         ref={progressSliderRef}
         className="w-[256px]"
+        onChange={onSliderProgressChange}
       />
       <input
         type="range"

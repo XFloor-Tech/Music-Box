@@ -15,6 +15,8 @@ class AudioPlayer {
 
   private _playerStartTime;
   private _startOffset;
+  private _loaded;
+  private _paused;
 
   private constructor() {
     this._audioContext = new AudioContext();
@@ -26,6 +28,8 @@ class AudioPlayer {
 
     this._playerStartTime = 0;
     this._startOffset = 0;
+    this._loaded = false;
+    this._paused = false;
   }
 
   public static getInstance() {
@@ -49,6 +53,7 @@ class AudioPlayer {
   }
 
   private invalidateAudioBufferSource() {
+    this._audioBufferSource.stop();
     this._audioBufferSource.disconnect();
     this._audioBufferSource = this._audioContext.createBufferSource();
     this.reconnectGain();
@@ -98,28 +103,33 @@ class AudioPlayer {
   }
 
   public pause() {
-    // maybe use source.stop() instead
-    if (this.getAudioState() === "running") {
+    if (!this._paused && this.getContextState() === "running") {
       this._audioContext.suspend();
+      this._paused = true;
     }
   }
 
   public resume() {
-    // maybe use source.start() instead
-    if (this.getAudioState() === "suspended") {
+    if (this._paused && this.getContextState() === "suspended") {
       this._audioContext.resume();
+      // this._audioBufferSource.start(0, this._startOffset);
+      this._paused = false;
     }
   }
 
   public setVolume(value: number) {
     if (value > 1 || value < 0) {
-      throw new Error("Provided value is not valid");
+      return;
     }
 
     this._gain.gain.setValueAtTime(value, this._audioContext.currentTime);
   }
 
-  public getAudioState() {
+  public mute() {
+    this.setVolume(0);
+  }
+
+  public getContextState() {
     return this._audioContext.state;
   }
 
@@ -130,18 +140,18 @@ class AudioPlayer {
   public getBufferDuration() {
     const currentBuffer = this._audioBufferSource.buffer;
     if (!currentBuffer) {
-      throw new Error("There's no buffer to get duration from");
+      return null;
     }
     return currentBuffer.duration;
   }
 
-  public changePlayTime(value: number) {
+  public setProgress(value: number) {
     const currentBuffer = this._audioBufferSource.buffer;
     if (value < 0 || !currentBuffer || value > currentBuffer.duration) {
-      throw new Error("There's no buffer or provided value is out of range");
+      return;
     }
 
-    this._audioBufferSource.start(0, value);
+    this.playAudioBuffer(currentBuffer, { when: 0, offset: value });
   }
 
   public getVolumeValue() {
@@ -151,7 +161,7 @@ class AudioPlayer {
   public getCurrentBufferProgress() {
     const currentBuffer = this._audioBufferSource.buffer;
     if (!currentBuffer) {
-      throw new Error("There's no buffer to get progress from");
+      return null;
     }
 
     const elapsed = this._audioContext.currentTime - this._playerStartTime;
