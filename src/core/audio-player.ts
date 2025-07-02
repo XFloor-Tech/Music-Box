@@ -4,6 +4,7 @@ type AudioBufferStartParams = {
   when?: number;
   offset?: number;
   duration?: number;
+  loop?: boolean;
 };
 
 /*
@@ -21,6 +22,7 @@ class AudioPlayer {
   private _loaded;
   private _paused;
   private _muted;
+  private _loop;
 
   private constructor() {
     this._audioContext = new AudioContext();
@@ -35,6 +37,7 @@ class AudioPlayer {
     this._loaded = false;
     this._paused = false;
     this._muted = false;
+    this._loop = false;
   }
 
   public static getInstance() {
@@ -73,7 +76,11 @@ class AudioPlayer {
     audioBuffer: AudioBuffer,
     startParams?: AudioBufferStartParams,
   ) {
-    /** Invalidate existing source if there was a buffer and create a new source */
+    if (this._audioContext.state === "suspended") {
+      this._audioContext.resume();
+    }
+
+    /** Reinvalidate existing source if there was a buffer and create a new source */
     if (this._audioBufferSource.buffer) {
       this.reinvalidateAudioBufferSource();
     }
@@ -88,6 +95,12 @@ class AudioPlayer {
     // dont use another connect as we already connected it to gain
     // this._audioBufferSource.connect(this._audioContext.destination);
 
+    const looped = (startParams?.loop ?? false) || this._loop;
+    this._audioBufferSource.loop = looped;
+    this._audioBufferSource.loopStart = 0;
+    this._audioBufferSource.loopEnd = audioBuffer.duration;
+    this._loop = looped;
+
     this._audioBufferSource.start(
       startParams?.when,
       startParams?.offset,
@@ -96,6 +109,12 @@ class AudioPlayer {
 
     // resume context if it was suspended
     this.resume();
+  }
+
+  private playCurrentAudioBuffer(startParams?: AudioBufferStartParams) {
+    const currentBuffer = this._audioBufferSource.buffer;
+    if (!currentBuffer) return;
+    this.playAudioBuffer(currentBuffer, startParams);
   }
 
   public async playArrayBuffer(
@@ -141,6 +160,11 @@ class AudioPlayer {
     this._muted = !this._muted;
   }
 
+  public loop() {
+    this._loop = !this._loop;
+    this._audioBufferSource.loop = this._loop;
+  }
+
   public getContextState() {
     return this._audioContext.state;
   }
@@ -158,12 +182,12 @@ class AudioPlayer {
   }
 
   public setProgress(value: number) {
-    const currentBuffer = this._audioBufferSource.buffer;
-    if (value < 0 || !currentBuffer || value > currentBuffer.duration) {
+    const duration = this.getBufferDuration();
+    if (value < 0 || !duration || value > duration) {
       return;
     }
 
-    this.playAudioBuffer(currentBuffer, { when: 0, offset: value });
+    this.playCurrentAudioBuffer({ when: 0, offset: value, loop: this._loop });
   }
 
   public getVolumeValue() {

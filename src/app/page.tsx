@@ -6,9 +6,10 @@ import { useAudioPlayer } from "@/core/useAudioPlayer";
 export default function Home() {
   const progressSliderRef = useRef<HTMLInputElement | null>(null);
 
-  const { play, pause, resume, changeVolume, changeProgress } = useAudioPlayer({
-    slider: progressSliderRef,
-  });
+  const { play, pause, resume, loop, changeVolume, changeProgress } =
+    useAudioPlayer({
+      slider: progressSliderRef,
+    });
 
   const onPlayClick = useCallback(() => {
     play({ path: "176.mp3" });
@@ -21,6 +22,10 @@ export default function Home() {
   const onResumeClick = useCallback(() => {
     resume();
   }, [resume]);
+
+  const onLoopClick = useCallback(() => {
+    loop();
+  }, [loop]);
 
   const onSliderVolumeChange = useCallback(
     (event: ChangeEvent<HTMLInputElement>) => {
@@ -41,6 +46,7 @@ export default function Home() {
       <button onClick={onPlayClick}>play</button>
       <button onClick={onPauseClick}>pause</button>
       <button onClick={onResumeClick}>resume</button>
+      <button onClick={onLoopClick}>loop</button>
       <input
         value="0"
         type="range"

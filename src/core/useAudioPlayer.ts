@@ -90,6 +90,10 @@ const useAudioPlayer = (params?: UseAudioPlayerParams) => {
     playerRef.current.resume();
   };
 
+  const loop = () => {
+    playerRef.current.loop();
+  };
+
   const changeVolume = (value: number) => {
     playerRef.current.setVolume(value);
   };
@@ -118,6 +122,7 @@ const useAudioPlayer = (params?: UseAudioPlayerParams) => {
     play,
     pause,
     resume,
+    loop,
     changeVolume,
     changeProgress,
     setAudioUrl,
