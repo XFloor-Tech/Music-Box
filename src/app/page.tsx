@@ -6,12 +6,13 @@ import { useAudioPlayer } from "@/core/useAudioPlayer";
 export default function Home() {
   const progressSliderRef = useRef<HTMLInputElement | null>(null);
 
-  const { fetchAndStart, pause, resume, changeVolume, changeProgress } =
-    useAudioPlayer({ slider: progressSliderRef });
+  const { play, pause, resume, changeVolume, changeProgress } = useAudioPlayer({
+    slider: progressSliderRef,
+  });
 
   const onPlayClick = useCallback(() => {
-    fetchAndStart({ path: "176.mp3", slider: progressSliderRef });
-  }, [fetchAndStart]);
+    play({ path: "176.mp3" });
+  }, [play]);
 
   const onPauseClick = useCallback(() => {
     pause();

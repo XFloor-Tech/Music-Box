@@ -1,3 +1,6 @@
+import { useQuery } from "@tanstack/react-query";
+//
+// TODO: Replace with network client
 const fetchAudioFromUrl = async (url: string): Promise<ArrayBuffer> => {
   let audio: ArrayBuffer;
 
@@ -11,4 +14,12 @@ const fetchAudioFromUrl = async (url: string): Promise<ArrayBuffer> => {
   return audio;
 };
 
-export { fetchAudioFromUrl };
+const useGetAudio = (url: string | null) =>
+  useQuery({
+    queryKey: ["audio", url],
+    queryFn: () => (!!url ? fetchAudioFromUrl(url) : undefined),
+    staleTime: Number.MAX_SAFE_INTEGER,
+    enabled: !!url,
+  });
+
+export { fetchAudioFromUrl, useGetAudio };

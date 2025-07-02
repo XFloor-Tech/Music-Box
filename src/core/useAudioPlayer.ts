@@ -1,22 +1,29 @@
 import { RefObject, useCallback, useEffect, useRef } from "react";
 import { type AudioBufferStartParams, AudioPlayer } from "./audio-player";
 import { fetchAudioFromUrl } from "./fetch-audio";
+import { atomWithStorage } from "jotai/utils";
+import { useAtom } from "jotai";
 
 type StartAudioParams = {
   path: string;
   startParams?: AudioBufferStartParams;
-  slider?: RefObject<HTMLInputElement | null>;
 };
 
 type UseAudioPlayerParams = {
   slider?: RefObject<HTMLInputElement | null>;
 };
 
+const broadcastAudioAtom = atomWithStorage<string | null>("broadcast", null);
+
+const useGetPlayerRef = () => useRef(AudioPlayer.getInstance());
+
 const useAudioPlayer = (params?: UseAudioPlayerParams) => {
   const { slider } = params ?? {};
 
-  const playerRef = useRef(AudioPlayer.getInstance());
+  const playerRef = useGetPlayerRef();
   const progressIntervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  const [audioUrl, setAudioUrl] = useAtom(broadcastAudioAtom);
 
   const stopPlayProgress = () => {
     if (progressIntervalRef.current) {
@@ -54,7 +61,7 @@ const useAudioPlayer = (params?: UseAudioPlayerParams) => {
 
       progressIntervalRef.current = setInterval(updateProgress, 50);
     },
-    [],
+    [playerRef],
   );
 
   const fetchAndStart = useCallback(
@@ -64,8 +71,16 @@ const useAudioPlayer = (params?: UseAudioPlayerParams) => {
       stopPlayProgress();
       if (slider) await initPlayProgress(slider);
     },
-    [initPlayProgress, slider],
+    [initPlayProgress, playerRef, slider],
   );
+
+  const play = (params?: StartAudioParams) => {
+    const path = params?.path ?? audioUrl;
+    if (!path) {
+      throw new Error("No audio URL provided to play.");
+    }
+    void fetchAndStart({ path, startParams: params?.startParams });
+  };
 
   const pause = () => {
     playerRef.current.pause();
@@ -87,7 +102,7 @@ const useAudioPlayer = (params?: UseAudioPlayerParams) => {
       playerRef.current.setProgress(time);
       if (slider) await initPlayProgress(slider);
     },
-    [initPlayProgress, slider],
+    [initPlayProgress, playerRef, slider],
   );
 
   /** Clean up all player related refs and close audio context */
@@ -97,9 +112,16 @@ const useAudioPlayer = (params?: UseAudioPlayerParams) => {
       stopPlayProgress();
       player.closeContextSources();
     };
-  }, []);
+  }, [playerRef]);
 
-  return { fetchAndStart, pause, resume, changeVolume, changeProgress };
+  return {
+    play,
+    pause,
+    resume,
+    changeVolume,
+    changeProgress,
+    setAudioUrl,
+  };
 };
 
 export { useAudioPlayer };

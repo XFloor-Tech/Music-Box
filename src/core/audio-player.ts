@@ -6,6 +6,9 @@ type AudioBufferStartParams = {
   duration?: number;
 };
 
+/*
+ * Class that manages audio playback using the Web Audio API and provides basic audio functions.
+ */
 class AudioPlayer {
   private static _instance: AudioPlayer;
 
@@ -17,6 +20,7 @@ class AudioPlayer {
   private _startOffset;
   private _loaded;
   private _paused;
+  private _muted;
 
   private constructor() {
     this._audioContext = new AudioContext();
@@ -30,6 +34,7 @@ class AudioPlayer {
     this._startOffset = 0;
     this._loaded = false;
     this._paused = false;
+    this._muted = false;
   }
 
   public static getInstance() {
@@ -52,9 +57,14 @@ class AudioPlayer {
     this._gain.connect(this._audioContext.destination);
   }
 
-  private invalidateAudioBufferSource() {
+  public invalidataeAudioBufferSource() {
+    this._loaded = false;
     this._audioBufferSource.stop();
     this._audioBufferSource.disconnect();
+  }
+
+  private reinvalidateAudioBufferSource() {
+    this.invalidataeAudioBufferSource();
     this._audioBufferSource = this._audioContext.createBufferSource();
     this.reconnectGain();
   }
@@ -65,7 +75,7 @@ class AudioPlayer {
   ) {
     /** Invalidate existing source if there was a buffer and create a new source */
     if (this._audioBufferSource.buffer) {
-      this.invalidateAudioBufferSource();
+      this.reinvalidateAudioBufferSource();
     }
 
     // Set player start time after source is loaded
@@ -74,6 +84,7 @@ class AudioPlayer {
     this._startOffset = startParams?.offset ?? 0;
 
     this._audioBufferSource.buffer = audioBuffer;
+    this._loaded = true;
     // dont use another connect as we already connected it to gain
     // this._audioBufferSource.connect(this._audioContext.destination);
 
@@ -121,12 +132,13 @@ class AudioPlayer {
     if (value > 1 || value < 0) {
       return;
     }
-
+    this._muted = value === 0;
     this._gain.gain.setValueAtTime(value, this._audioContext.currentTime);
   }
 
   public mute() {
-    this.setVolume(0);
+    this.setVolume(this._muted ? 1 : 0);
+    this._muted = !this._muted;
   }
 
   public getContextState() {
@@ -156,6 +168,10 @@ class AudioPlayer {
 
   public getVolumeValue() {
     return this._gain.gain.value;
+  }
+
+  public getIsLoaded() {
+    return this._loaded;
   }
 
   public getCurrentBufferProgress() {
