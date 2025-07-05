@@ -34,26 +34,13 @@ export default function Home() {
     [changeVolume],
   );
 
-  const onSliderProgressChange = useCallback(
-    (event: ChangeEvent<HTMLInputElement>) => {
-      changeProgress(parseFloat(event.target.value));
-    },
-    [changeProgress],
-  );
-
   return (
     <div className="flex flex-row gap-4 align-center w-full">
       <button onClick={onPlayClick}>play</button>
       <button onClick={onPauseClick}>pause</button>
       <button onClick={onResumeClick}>resume</button>
       <button onClick={onLoopClick}>loop</button>
-      <input
-        value="0"
-        type="range"
-        ref={progressSliderRef}
-        className="w-[256px]"
-        onChange={onSliderProgressChange}
-      />
+      <input type="range" ref={progressSliderRef} className="w-[256px]" />
       <input
         type="range"
         min="0"

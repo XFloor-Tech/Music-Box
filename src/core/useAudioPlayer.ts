@@ -1,4 +1,11 @@
-import { RefObject, useCallback, useEffect, useMemo, useRef } from "react";
+import {
+  ChangeEvent,
+  RefObject,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+} from "react";
 import {
   type AudioBufferStartParams,
   AudioPlayer,
@@ -114,7 +121,7 @@ const useAudioPlayer = (params?: UseAudioPlayerParams) => {
     [initPlayProgress, playerRef, slider],
   );
 
-  // Attach listeners for play progress on component mount
+  /** Attach listeners for play progress on component mount */
   useEffect(() => {
     playerRef.current.addListeners([
       {
@@ -127,6 +134,28 @@ const useAudioPlayer = (params?: UseAudioPlayerParams) => {
       },
     ]);
   }, [initPlayProgress, playerRef, slider]);
+
+  /** Set up slider change event listener for progress change trigger */
+  // TODO: make useSlider hook
+  useEffect(() => {
+    const sliderElement = slider?.current;
+    const onSliderChange = (event: Event) => {
+      if (event.target) {
+        const value = parseFloat((event.target as HTMLInputElement).value);
+        console.log("Slider value changed:", value);
+        changeProgress(value);
+      }
+    };
+
+    if (sliderElement) {
+      sliderElement.value = "0";
+      sliderElement.addEventListener("input", onSliderChange);
+    }
+
+    return () => {
+      sliderElement?.removeEventListener("input", onSliderChange);
+    };
+  }, [changeProgress, slider]);
 
   /** Clean up all player related refs and close audio context */
   useEffect(() => {

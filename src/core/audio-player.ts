@@ -26,6 +26,7 @@ class AudioPlayer {
 
   private _playerStartTime;
   private _startOffset;
+  private _volume;
 
   private _loaded;
   private _paused;
@@ -36,15 +37,17 @@ class AudioPlayer {
   private _listeners;
 
   private constructor(params?: AudioScaffoldParams) {
+    this._playerStartTime = 0;
+    this._startOffset = 0;
+    this._volume = 0.5;
+
     this._audioContext = new AudioContext();
     this._audioBufferSource = this._audioContext.createBufferSource();
 
     this._gain = this._audioContext.createGain();
+    this.setVolume(this._volume);
     this._audioBufferSource.connect(this._gain);
     this._gain.connect(this._audioContext.destination);
-
-    this._playerStartTime = 0;
-    this._startOffset = 0;
 
     this._loaded = false;
     this._paused = false;
@@ -76,6 +79,7 @@ class AudioPlayer {
   private _reconnectGain() {
     this._gain.disconnect();
     this._gain = this._audioContext.createGain();
+    this.setVolume(this._volume);
     this._audioBufferSource.connect(this._gain);
     this._gain.connect(this._audioContext.destination);
   }
@@ -130,10 +134,12 @@ class AudioPlayer {
       audioBuffer.duration - (startParams?.offset ?? 0),
     );
 
+    // Set up timer manually, because there's not good native way to listen for end of playback
     this._endTimer = setTimeout(() => {
       this._listeners.end?.();
+      // If the loop is not enabled, pause playback
       if (!this._loop) this.pause();
-      // when playback ends, start over
+      // When playback ends, start over
       this._playerStartTime = this._audioContext.currentTime;
       this._startOffset = 0;
     }, duration * 1000);
