@@ -1,19 +1,12 @@
-import {
-  ChangeEvent,
-  RefObject,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-} from "react";
+import { useAtom } from "jotai";
+import { RefObject, useCallback, useEffect, useRef } from "react";
 import {
   type AudioBufferStartParams,
   AudioPlayer,
   AudioScaffoldParams,
 } from "./audio-player";
+import { audioSettingsAtom, broadcastAudioAtom } from "./audio-storage";
 import { fetchAudioFromUrl } from "./fetch-audio";
-import { atomWithStorage } from "jotai/utils";
-import { useAtom } from "jotai";
 
 type StartAudioParams = {
   path: string;
@@ -24,18 +17,17 @@ type UseAudioPlayerParams = {
   slider?: RefObject<HTMLInputElement | null>;
 };
 
-const broadcastAudioAtom = atomWithStorage<string | null>("broadcast", null);
-
 const useGetPlayerRef = (params?: AudioScaffoldParams) =>
   useRef(AudioPlayer.getInstance(params));
 
 const useAudioPlayer = (params?: UseAudioPlayerParams) => {
   const { slider } = params ?? {};
 
-  const playerRef = useGetPlayerRef();
-  const progressIntervalRef = useRef<NodeJS.Timeout | null>(null);
-
   const [audioUrl, setAudioUrl] = useAtom(broadcastAudioAtom);
+  const [audioSettings, setAudioSettings] = useAtom(audioSettingsAtom);
+
+  const playerRef = useGetPlayerRef({ settings: audioSettings });
+  const progressIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   const stopPlayProgress = () => {
     if (progressIntervalRef.current) {
@@ -103,10 +95,19 @@ const useAudioPlayer = (params?: UseAudioPlayerParams) => {
   };
 
   const loop = () => {
+    setAudioSettings((prev) => ({ ...prev, loop: !prev.loop }));
     playerRef.current.loop();
   };
 
   const changeVolume = (value: number) => {
+    if (value > 1 || value < 0) {
+      return;
+    }
+    setAudioSettings((prev) => ({
+      ...prev,
+      volume: value,
+      muted: value === 0,
+    }));
     playerRef.current.setVolume(value);
   };
 

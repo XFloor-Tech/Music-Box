@@ -10,8 +10,15 @@ type AudioBufferStartParams = {
 type AudioEventType = "end";
 type AudioEventListener = { event: AudioEventType; on: () => void };
 
+type AudioSettings = {
+  volume: number;
+  loop: boolean;
+  muted: boolean;
+};
+
 type AudioScaffoldParams = {
   listeners?: AudioEventListener[];
+  settings?: AudioSettings;
 };
 
 /*
@@ -37,22 +44,17 @@ class AudioPlayer {
   private _listeners;
 
   private constructor(params?: AudioScaffoldParams) {
+    const settings = params?.settings;
+
     this._playerStartTime = 0;
     this._startOffset = 0;
-    this._volume = 0.5;
-
-    this._audioContext = new AudioContext();
-    this._audioBufferSource = this._audioContext.createBufferSource();
-
-    this._gain = this._audioContext.createGain();
-    this.setVolume(this._volume);
-    this._audioBufferSource.connect(this._gain);
-    this._gain.connect(this._audioContext.destination);
+    this._volume = settings?.volume ?? 0.5;
 
     this._loaded = false;
     this._paused = false;
-    this._muted = false;
-    this._loop = false;
+    this._muted = settings?.muted ?? false;
+    this._loop = settings?.loop ?? false;
+    console.log("AudioPlayer settings", settings);
 
     this._endTimer = null;
     this._listeners = {} as Record<AudioEventType, () => void>;
@@ -61,6 +63,14 @@ class AudioPlayer {
         this._listeners[listener.event] = listener.on;
       });
     }
+
+    this._audioContext = new AudioContext();
+    this._audioBufferSource = this._audioContext.createBufferSource();
+
+    this._gain = this._audioContext.createGain();
+    this.setVolume(this._volume);
+    this._audioBufferSource.connect(this._gain);
+    this._gain.connect(this._audioContext.destination);
   }
 
   public static getInstance(params?: AudioScaffoldParams) {
@@ -70,6 +80,29 @@ class AudioPlayer {
 
     this._instance = new AudioPlayer(params);
     return this._instance;
+  }
+
+  private _clearTimers() {
+    if (this._endTimer) {
+      clearTimeout(this._endTimer);
+    }
+  }
+
+  private _setupTimers() {
+    const duration = Math.max(
+      0,
+      (this.getBufferDuration() ?? 0) - this._startOffset,
+    );
+
+    // Set up timer manually, because there's not good native way to listen for end of playback
+    this._endTimer = setTimeout(() => {
+      this._listeners.end?.();
+      // If the loop is not enabled, pause playback
+      if (!this._loop) this.pause();
+      // When playback ends, start over
+      this._playerStartTime = this._audioContext.currentTime;
+      this._startOffset = 0;
+    }, duration * 1000);
   }
 
   public audioFromArrayBuffer(arrayBuffer: ArrayBuffer) {
@@ -89,9 +122,7 @@ class AudioPlayer {
     this._audioBufferSource.stop();
     this._audioBufferSource.disconnect();
 
-    if (this._endTimer) {
-      clearTimeout(this._endTimer);
-    }
+    this._clearTimers();
   }
 
   private _revalidateAudioBufferSource() {
@@ -129,20 +160,7 @@ class AudioPlayer {
     this._audioBufferSource.loopEnd = audioBuffer.duration;
     this._loop = looped;
 
-    const duration = Math.max(
-      0,
-      audioBuffer.duration - (startParams?.offset ?? 0),
-    );
-
-    // Set up timer manually, because there's not good native way to listen for end of playback
-    this._endTimer = setTimeout(() => {
-      this._listeners.end?.();
-      // If the loop is not enabled, pause playback
-      if (!this._loop) this.pause();
-      // When playback ends, start over
-      this._playerStartTime = this._audioContext.currentTime;
-      this._startOffset = 0;
-    }, duration * 1000);
+    this._setupTimers();
 
     this._audioBufferSource.start(
       startParams?.when,
@@ -179,6 +197,8 @@ class AudioPlayer {
   public pause() {
     if (!this._paused && this.getContextState() === "running") {
       this._audioContext.suspend();
+      this._startOffset = this.getCurrentBufferProgress() ?? 0;
+      this._clearTimers();
       this._paused = true;
     }
   }
@@ -186,15 +206,12 @@ class AudioPlayer {
   public resume() {
     if (this._paused && this.getContextState() === "suspended") {
       this._audioContext.resume();
-      // this._audioBufferSource.start(0, this._startOffset);
+      this._setupTimers();
       this._paused = false;
     }
   }
 
   public setVolume(value: number) {
-    if (value > 1 || value < 0) {
-      return;
-    }
     this._muted = value === 0;
     this._gain.gain.setValueAtTime(value, this._audioContext.currentTime);
   }
@@ -276,4 +293,5 @@ export {
   type AudioBufferStartParams,
   type AudioEventListener,
   type AudioScaffoldParams,
+  type AudioSettings,
 };

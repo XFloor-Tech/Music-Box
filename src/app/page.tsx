@@ -1,7 +1,7 @@
 "use client";
 
 import { ChangeEvent, useCallback, useRef } from "react";
-import { useAudioPlayer } from "@/core/useAudioPlayer";
+import { useAudioPlayer } from "@/core/audio/useAudioPlayer";
 
 export default function Home() {
   const progressSliderRef = useRef<HTMLInputElement | null>(null);
