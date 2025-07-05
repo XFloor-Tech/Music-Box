@@ -7,6 +7,13 @@ type AudioBufferStartParams = {
   loop?: boolean;
 };
 
+type AudioEventType = "end";
+type AudioEventListener = { event: AudioEventType; on: () => void };
+
+type AudioScaffoldParams = {
+  listeners?: AudioEventListener[];
+};
+
 /*
  * Class that manages audio playback using the Web Audio API and provides basic audio functions.
  */
@@ -19,12 +26,16 @@ class AudioPlayer {
 
   private _playerStartTime;
   private _startOffset;
+
   private _loaded;
   private _paused;
   private _muted;
   private _loop;
 
-  private constructor() {
+  private _endTimer: NodeJS.Timeout | null;
+  private _listeners;
+
+  private constructor(params?: AudioScaffoldParams) {
     this._audioContext = new AudioContext();
     this._audioBufferSource = this._audioContext.createBufferSource();
 
@@ -34,18 +45,27 @@ class AudioPlayer {
 
     this._playerStartTime = 0;
     this._startOffset = 0;
+
     this._loaded = false;
     this._paused = false;
     this._muted = false;
     this._loop = false;
+
+    this._endTimer = null;
+    this._listeners = {} as Record<AudioEventType, () => void>;
+    if (params?.listeners) {
+      params.listeners.forEach((listener) => {
+        this._listeners[listener.event] = listener.on;
+      });
+    }
   }
 
-  public static getInstance() {
+  public static getInstance(params?: AudioScaffoldParams) {
     if (this._instance) {
       return this._instance;
     }
 
-    this._instance = new AudioPlayer();
+    this._instance = new AudioPlayer(params);
     return this._instance;
   }
 
@@ -53,36 +73,40 @@ class AudioPlayer {
     return this._audioContext.decodeAudioData(arrayBuffer);
   }
 
-  private reconnectGain() {
+  private _reconnectGain() {
     this._gain.disconnect();
     this._gain = this._audioContext.createGain();
     this._audioBufferSource.connect(this._gain);
     this._gain.connect(this._audioContext.destination);
   }
 
-  public invalidataeAudioBufferSource() {
+  public invalidateAudioBufferSource() {
     this._loaded = false;
     this._audioBufferSource.stop();
     this._audioBufferSource.disconnect();
+
+    if (this._endTimer) {
+      clearTimeout(this._endTimer);
+    }
   }
 
-  private reinvalidateAudioBufferSource() {
-    this.invalidataeAudioBufferSource();
+  private _revalidateAudioBufferSource() {
+    this.invalidateAudioBufferSource();
     this._audioBufferSource = this._audioContext.createBufferSource();
-    this.reconnectGain();
+    this._reconnectGain();
   }
 
   private async playAudioBuffer(
     audioBuffer: AudioBuffer,
     startParams?: AudioBufferStartParams,
   ) {
-    if (this._audioContext.state === "suspended") {
-      this._audioContext.resume();
-    }
+    // if (this._audioContext.state === "suspended") {
+    //   this._audioContext.resume();
+    // }
 
-    /** Reinvalidate existing source if there was a buffer and create a new source */
+    /** Revalidate existing source if there was a buffer and create a new source */
     if (this._audioBufferSource.buffer) {
-      this.reinvalidateAudioBufferSource();
+      this._revalidateAudioBufferSource();
     }
 
     // Set player start time after source is loaded
@@ -101,6 +125,19 @@ class AudioPlayer {
     this._audioBufferSource.loopEnd = audioBuffer.duration;
     this._loop = looped;
 
+    const duration = Math.max(
+      0,
+      audioBuffer.duration - (startParams?.offset ?? 0),
+    );
+
+    this._endTimer = setTimeout(() => {
+      this._listeners.end?.();
+      if (!this._loop) this.pause();
+      // when playback ends, start over
+      this._playerStartTime = this._audioContext.currentTime;
+      this._startOffset = 0;
+    }, duration * 1000);
+
     this._audioBufferSource.start(
       startParams?.when,
       startParams?.offset,
@@ -108,10 +145,10 @@ class AudioPlayer {
     );
 
     // resume context if it was suspended
-    this.resume();
+    // this.resume();
   }
 
-  private playCurrentAudioBuffer(startParams?: AudioBufferStartParams) {
+  private _playCurrentAudioBuffer(startParams?: AudioBufferStartParams) {
     const currentBuffer = this._audioBufferSource.buffer;
     if (!currentBuffer) return;
     this.playAudioBuffer(currentBuffer, startParams);
@@ -126,10 +163,11 @@ class AudioPlayer {
   }
 
   public closeContextSources() {
-    this._audioBufferSource.stop();
-    this._audioBufferSource.disconnect();
+    this.invalidateAudioBufferSource();
     this._gain.disconnect();
     this._audioContext.close();
+    // Remove all listeners
+    this._listeners = {} as Record<AudioEventType, () => void>;
   }
 
   public pause() {
@@ -162,7 +200,12 @@ class AudioPlayer {
 
   public loop() {
     this._loop = !this._loop;
-    this._audioBufferSource.loop = this._loop;
+    const audioBuffer = this._audioBufferSource.buffer;
+    if (audioBuffer) {
+      this._audioBufferSource.loopStart = 0;
+      this._audioBufferSource.loopEnd = audioBuffer.duration;
+      this._audioBufferSource.loop = this._loop;
+    }
   }
 
   public getContextState() {
@@ -187,7 +230,7 @@ class AudioPlayer {
       return;
     }
 
-    this.playCurrentAudioBuffer({ when: 0, offset: value, loop: this._loop });
+    this._playCurrentAudioBuffer({ when: 0, offset: value, loop: this._loop });
   }
 
   public getVolumeValue() {
@@ -196,6 +239,10 @@ class AudioPlayer {
 
   public getIsLoaded() {
     return this._loaded;
+  }
+
+  public getIsLooped() {
+    return this._loop;
   }
 
   public getCurrentBufferProgress() {
@@ -210,6 +257,17 @@ class AudioPlayer {
 
     return currentTime;
   }
+
+  public addListeners(listeners: AudioEventListener[]) {
+    listeners.forEach((listener) => {
+      this._listeners[listener.event] = listener.on;
+    });
+  }
 }
 
-export { AudioPlayer, type AudioBufferStartParams };
+export {
+  AudioPlayer,
+  type AudioBufferStartParams,
+  type AudioEventListener,
+  type AudioScaffoldParams,
+};

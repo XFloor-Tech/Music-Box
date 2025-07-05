@@ -1,5 +1,9 @@
-import { RefObject, useCallback, useEffect, useRef } from "react";
-import { type AudioBufferStartParams, AudioPlayer } from "./audio-player";
+import { RefObject, useCallback, useEffect, useMemo, useRef } from "react";
+import {
+  type AudioBufferStartParams,
+  AudioPlayer,
+  AudioScaffoldParams,
+} from "./audio-player";
 import { fetchAudioFromUrl } from "./fetch-audio";
 import { atomWithStorage } from "jotai/utils";
 import { useAtom } from "jotai";
@@ -15,7 +19,8 @@ type UseAudioPlayerParams = {
 
 const broadcastAudioAtom = atomWithStorage<string | null>("broadcast", null);
 
-const useGetPlayerRef = () => useRef(AudioPlayer.getInstance());
+const useGetPlayerRef = (params?: AudioScaffoldParams) =>
+  useRef(AudioPlayer.getInstance(params));
 
 const useAudioPlayer = (params?: UseAudioPlayerParams) => {
   const { slider } = params ?? {};
@@ -108,6 +113,20 @@ const useAudioPlayer = (params?: UseAudioPlayerParams) => {
     },
     [initPlayProgress, playerRef, slider],
   );
+
+  // Attach listeners for play progress on component mount
+  useEffect(() => {
+    playerRef.current.addListeners([
+      {
+        event: "end",
+        on: () => {
+          console.log("Audio playback ended.");
+          stopPlayProgress();
+          if (slider) void initPlayProgress(slider);
+        },
+      },
+    ]);
+  }, [initPlayProgress, playerRef, slider]);
 
   /** Clean up all player related refs and close audio context */
   useEffect(() => {
