@@ -5,6 +5,7 @@ type AudioBufferStartParams = {
   offset?: number;
   duration?: number;
   loop?: boolean;
+  type?: "default" | "loop" | "progress";
 };
 
 type AudioEventType = "start" | "end";
@@ -19,6 +20,7 @@ type AudioSettings = {
 type AudioScaffoldParams = {
   listeners?: AudioEventListener[];
   settings?: AudioSettings;
+  context?: AudioContext;
 };
 
 /*
@@ -37,6 +39,7 @@ class AudioPlayer {
 
   private _loaded;
   private _paused;
+  private _ended;
   private _muted;
   private _loop;
 
@@ -52,6 +55,7 @@ class AudioPlayer {
 
     this._loaded = false;
     this._paused = false;
+    this._ended = false;
     this._muted = settings?.muted ?? false;
     this._loop = settings?.loop ?? false;
 
@@ -96,9 +100,8 @@ class AudioPlayer {
     // Set up timer manually, because there's not good native way to listen for end of playback
     this._endTimer = setTimeout(() => {
       this._listeners.end?.();
-      // If the loop is not enabled, pause playback
-      // if (!this._loop) this.pause();
       if (this._loop) this._listeners.start?.();
+      else this._ended = true;
       // When playback ends, start over
       this._playerStartTime = this._audioContext.currentTime;
       this._startOffset = 0;
@@ -135,10 +138,6 @@ class AudioPlayer {
     audioBuffer: AudioBuffer,
     startParams?: AudioBufferStartParams,
   ) {
-    // if (this._audioContext.state === "suspended") {
-    //   this._audioContext.resume();
-    // }
-
     /** Revalidate existing source if there was a buffer and create a new source */
     if (this._audioBufferSource.buffer) {
       this._revalidateAudioBufferSource();
@@ -151,8 +150,7 @@ class AudioPlayer {
 
     this._audioBufferSource.buffer = audioBuffer;
     this._loaded = true;
-    // dont use another connect as we already connected it to gain
-    // this._audioBufferSource.connect(this._audioContext.destination);
+    this._ended = false;
 
     const looped = (startParams?.loop ?? false) || this._loop;
     this._audioBufferSource.loop = looped;
@@ -169,9 +167,6 @@ class AudioPlayer {
       startParams?.offset,
       startParams?.duration,
     );
-
-    // resume context if it was suspended
-    // this.resume();
   }
 
   private _playCurrentAudioBuffer(startParams?: AudioBufferStartParams) {
@@ -198,7 +193,7 @@ class AudioPlayer {
   }
 
   public pause() {
-    if (!this._paused && this.getContextState() === "running") {
+    if (!this._paused && this.getContextState() === "running" && !this._ended) {
       this._clearTimers();
       this._paused = true;
       this._listeners.end?.();
@@ -209,7 +204,11 @@ class AudioPlayer {
   }
 
   public resume() {
-    if (this._paused && this.getContextState() === "suspended") {
+    if (
+      this._paused &&
+      this.getContextState() === "suspended" &&
+      !this._ended
+    ) {
       this._audioContext.resume();
       this._setupTimers();
       this._listeners.start?.();
@@ -260,7 +259,11 @@ class AudioPlayer {
       return;
     }
 
-    this._playCurrentAudioBuffer({ when: 0, offset: value, loop: this._loop });
+    this._playCurrentAudioBuffer({
+      when: 0,
+      offset: value,
+      loop: this._loop,
+    });
   }
 
   public getVolumeValue() {
