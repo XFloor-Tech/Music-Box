@@ -1,5 +1,5 @@
 import { useAtom, useSetAtom } from "jotai";
-import { RefObject, useCallback, useEffect, useState } from "react";
+import { RefObject, useCallback, useEffect, useMemo, useState } from "react";
 import { type AudioBufferStartParams } from "./audio-player";
 import { audioSettingsAtom, broadcastAudioAtom } from "./audio-storage";
 import { fetchAudioFromUrl } from "./fetch-audio";
@@ -34,7 +34,7 @@ const initialAudioStates: AudioStates = {
 
 const useAudioPlayer = (params: UseAudioPlayerParams) => {
   const [audioUrl, setAudioUrl] = useAtom(broadcastAudioAtom);
-  const setAudioSettings = useSetAtom(audioSettingsAtom);
+  const [audioSettings, setAudioSettings] = useAtom(audioSettingsAtom);
 
   const [audioStates, setAudioStates] = useState(initialAudioStates);
 
@@ -169,6 +169,11 @@ const useAudioPlayer = (params: UseAudioPlayerParams) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps -- need this on mount only
   }, []);
 
+  const states = useMemo(
+    () => ({ ...audioStates, ...audioSettings }),
+    [audioSettings, audioStates],
+  );
+
   return {
     play,
     pause,
@@ -177,7 +182,7 @@ const useAudioPlayer = (params: UseAudioPlayerParams) => {
     changeVolume,
     changeProgress,
     setAudioUrl,
-    states: audioStates,
+    states,
   };
 };
 
