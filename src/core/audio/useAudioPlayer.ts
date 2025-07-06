@@ -66,7 +66,7 @@ const useAudioPlayer = (params: UseAudioPlayerParams) => {
     [playerRef],
   );
 
-  /** Sliders logic */
+  // Sliders logic
   const sliders = useAudioSlider({
     sliders: params.sliders,
     progressChange: changeProgress,
@@ -82,27 +82,25 @@ const useAudioPlayer = (params: UseAudioPlayerParams) => {
     [playerRef, sliders],
   );
 
-  /** Attach listeners */
+  // Attach listeners
   useEffect(() => {
     playerRef.current?.addListeners([
       {
         event: "start",
         on: () => {
-          console.log("Audio playback started.");
           void sliders.refresh();
         },
       },
       {
         event: "end",
         on: () => {
-          console.log("Audio playback ended.");
           void sliders.clear();
         },
       },
     ]);
   }, [playerRef, sliders]);
 
-  /** Close audio context */
+  // Close audio context
   useEffect(() => {
     const player = playerRef.current;
     return () => {

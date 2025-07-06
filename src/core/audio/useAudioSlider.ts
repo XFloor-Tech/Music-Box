@@ -72,7 +72,7 @@ const useAudioSlider = (params: UseAudioSliderParams) => {
     await setup();
   }, [setup]);
 
-  /** Event listeners */
+  // Event listeners
   useEffect(() => {
     const progressSlider = progressSliderRef?.current;
     const volumeSlider = volumeSliderRef?.current;

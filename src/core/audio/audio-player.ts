@@ -138,7 +138,7 @@ class AudioPlayer {
     audioBuffer: AudioBuffer,
     startParams?: AudioBufferStartParams,
   ) {
-    /** Revalidate existing source if there was a buffer and create a new source */
+    // Revalidate existing source if there was a buffer and create a new source
     if (this._audioBufferSource.buffer) {
       this._revalidateAudioBufferSource();
     }
@@ -286,8 +286,6 @@ class AudioPlayer {
 
     const elapsed = this._audioContext.currentTime - this._playerStartTime;
     const playbackRate = this._audioBufferSource.playbackRate.value;
-    console.log("Elapsed time:", elapsed);
-    console.log("Start offset:", this._startOffset);
     const currentTime = (this._startOffset + elapsed) * playbackRate;
 
     return currentTime;
