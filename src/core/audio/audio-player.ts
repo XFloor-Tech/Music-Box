@@ -67,7 +67,7 @@ class AudioPlayer {
       });
     }
 
-    this._audioContext = new AudioContext();
+    this._audioContext = params?.context ?? new AudioContext();
     this._audioBufferSource = this._audioContext.createBufferSource();
 
     this._gain = this._audioContext.createGain();

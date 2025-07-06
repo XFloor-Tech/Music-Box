@@ -33,12 +33,18 @@ export default function Home() {
       <button onClick={onPauseClick}>pause</button>
       <button onClick={onResumeClick}>resume</button>
       <button onClick={onLoopClick}>loop</button>
-      <input type="range" ref={progressSliderRef} className="w-[256px]" />
+      <input
+        defaultValue="0"
+        type="range"
+        ref={progressSliderRef}
+        className="w-[256px]"
+      />
       <input
         type="range"
         ref={volumeSliderRef}
         min="0"
         max="1"
+        defaultValue="0.5"
         className="w-[64px]"
       />
     </div>

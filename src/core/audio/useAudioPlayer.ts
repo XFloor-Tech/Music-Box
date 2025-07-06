@@ -1,4 +1,4 @@
-import { useAtom } from "jotai";
+import { useAtom, useSetAtom } from "jotai";
 import { useCallback, useEffect } from "react";
 import { type AudioBufferStartParams } from "./audio-player";
 import { audioSettingsAtom, broadcastAudioAtom } from "./audio-storage";
@@ -17,9 +17,9 @@ type UseAudioPlayerParams = {
 
 const useAudioPlayer = (params: UseAudioPlayerParams) => {
   const [audioUrl, setAudioUrl] = useAtom(broadcastAudioAtom);
-  const [audioSettings, setAudioSettings] = useAtom(audioSettingsAtom);
+  const setAudioSettings = useSetAtom(audioSettingsAtom);
 
-  const playerRef = useGetPlayerRef({ settings: audioSettings });
+  const playerRef = useGetPlayerRef();
 
   const play = (params?: StartAudioParams) => {
     const path = params?.path ?? audioUrl;
@@ -30,16 +30,16 @@ const useAudioPlayer = (params: UseAudioPlayerParams) => {
   };
 
   const pause = () => {
-    playerRef.current.pause();
+    playerRef.current?.pause();
   };
 
   const resume = () => {
-    playerRef.current.resume();
+    playerRef.current?.resume();
   };
 
   const loop = () => {
     setAudioSettings((prev) => ({ ...prev, loop: !prev.loop }));
-    playerRef.current.loop();
+    playerRef.current?.loop();
   };
 
   const changeVolume = useCallback(
@@ -52,16 +52,16 @@ const useAudioPlayer = (params: UseAudioPlayerParams) => {
         volume: value,
         muted: value === 0,
       }));
-      playerRef.current.setVolume(value);
+      playerRef.current?.setVolume(value);
     },
     [playerRef, setAudioSettings],
   );
 
   const changeProgress = useCallback(
     async (value: number) => {
-      const audioDuration = playerRef.current.getBufferDuration();
+      const audioDuration = playerRef.current?.getBufferDuration();
       const time = Math.max(0, Math.min(value, audioDuration ?? 0));
-      playerRef.current.setProgress(time);
+      playerRef.current?.setProgress(time);
     },
     [playerRef],
   );
@@ -76,7 +76,7 @@ const useAudioPlayer = (params: UseAudioPlayerParams) => {
   const fetchAndStart = useCallback(
     async ({ path, startParams }: StartAudioParams) => {
       const audio = await fetchAudioFromUrl(path);
-      await playerRef.current.playArrayBuffer(audio, startParams);
+      await playerRef.current?.playArrayBuffer(audio, startParams);
       await sliders.refresh();
     },
     [playerRef, sliders],
@@ -84,7 +84,7 @@ const useAudioPlayer = (params: UseAudioPlayerParams) => {
 
   /** Attach listeners */
   useEffect(() => {
-    playerRef.current.addListeners([
+    playerRef.current?.addListeners([
       {
         event: "start",
         on: () => {
@@ -106,7 +106,7 @@ const useAudioPlayer = (params: UseAudioPlayerParams) => {
   useEffect(() => {
     const player = playerRef.current;
     return () => {
-      player.close();
+      player?.close();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps -- need this on mount only
   }, []);

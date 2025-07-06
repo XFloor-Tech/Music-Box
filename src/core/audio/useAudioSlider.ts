@@ -31,18 +31,20 @@ const useAudioSlider = (params: UseAudioSliderParams) => {
     // Progress slider setup
     if (progressSliderRef?.current) {
       progressSliderRef.current.value =
-        playerRef.current.getCurrentBufferProgress()?.toString() ?? "0";
+        playerRef.current?.getCurrentBufferProgress()?.toString() ?? "0";
       progressSliderRef.current.min = "0";
       progressSliderRef.current.max =
-        playerRef.current.getBufferDuration()?.toString() ?? "100";
+        playerRef.current?.getBufferDuration()?.toString() ?? "100";
 
       const updateProgress = () => {
-        const audioDuration = playerRef.current.getBufferDuration();
-        const currentTime = playerRef.current.getCurrentBufferProgress();
+        const audioDuration = playerRef.current?.getBufferDuration();
+        const currentTime = playerRef.current?.getCurrentBufferProgress();
 
         if (
           currentTime === null ||
           audioDuration === null ||
+          currentTime === undefined ||
+          audioDuration === undefined ||
           !progressSliderRef.current ||
           currentTime > audioDuration
         ) {
@@ -58,9 +60,8 @@ const useAudioSlider = (params: UseAudioSliderParams) => {
     // Volume slider setup
     if (volumeSliderRef?.current) {
       volumeSliderRef.current.step = "0.05";
-      volumeSliderRef.current.value = playerRef.current
-        .getVolumeValue()
-        .toString();
+      volumeSliderRef.current.value =
+        playerRef.current?.getVolumeValue().toString() ?? "0.5";
       volumeSliderRef.current.min = "0";
       volumeSliderRef.current.max = "1";
     }
@@ -87,7 +88,6 @@ const useAudioSlider = (params: UseAudioSliderParams) => {
       progressChange(value);
     };
     if (progressSlider) {
-      progressSlider.value = "0";
       progressSlider.addEventListener("mousedown", onProgressMouseDown);
       progressSlider.addEventListener("mouseup", onProgressMouseUp);
     }
@@ -98,7 +98,6 @@ const useAudioSlider = (params: UseAudioSliderParams) => {
       volumeChange(value);
     };
     if (volumeSlider) {
-      volumeSlider.value = "0.5";
       volumeSlider.addEventListener("input", onVolumeChange);
     }
 
