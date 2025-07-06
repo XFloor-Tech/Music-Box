@@ -1,12 +1,10 @@
 import { useAtom } from "jotai";
-import { RefObject, useCallback, useEffect, useRef } from "react";
-import {
-  type AudioBufferStartParams,
-  AudioPlayer,
-  AudioScaffoldParams,
-} from "./audio-player";
+import { useCallback, useEffect } from "react";
+import { type AudioBufferStartParams } from "./audio-player";
 import { audioSettingsAtom, broadcastAudioAtom } from "./audio-storage";
 import { fetchAudioFromUrl } from "./fetch-audio";
+import { AudioSliders, useAudioSlider } from "./useAudioSlider";
+import { useGetPlayerRef } from "./useGetPlayer";
 
 type StartAudioParams = {
   path: string;
@@ -14,69 +12,14 @@ type StartAudioParams = {
 };
 
 type UseAudioPlayerParams = {
-  slider?: RefObject<HTMLInputElement | null>;
+  sliders: AudioSliders;
 };
 
-const useGetPlayerRef = (params?: AudioScaffoldParams) =>
-  useRef(AudioPlayer.getInstance(params));
-
-const useAudioPlayer = (params?: UseAudioPlayerParams) => {
-  const { slider } = params ?? {};
-
+const useAudioPlayer = (params: UseAudioPlayerParams) => {
   const [audioUrl, setAudioUrl] = useAtom(broadcastAudioAtom);
   const [audioSettings, setAudioSettings] = useAtom(audioSettingsAtom);
 
   const playerRef = useGetPlayerRef({ settings: audioSettings });
-  const progressIntervalRef = useRef<NodeJS.Timeout | null>(null);
-
-  const stopPlayProgress = () => {
-    if (progressIntervalRef.current) {
-      clearInterval(progressIntervalRef.current);
-      progressIntervalRef.current = null;
-    }
-  };
-
-  const initPlayProgress = useCallback(
-    async (
-      sliderRef: RefObject<HTMLInputElement | null>,
-      startParams?: AudioBufferStartParams,
-    ) => {
-      if (!sliderRef.current) return;
-
-      sliderRef.current.value = startParams?.offset?.toString() ?? "0";
-      sliderRef.current.max =
-        playerRef.current.getBufferDuration()?.toString() ?? "100";
-
-      const updateProgress = () => {
-        const audioDuration = playerRef.current.getBufferDuration();
-        const currentTime = playerRef.current.getCurrentBufferProgress();
-
-        if (
-          currentTime === null ||
-          audioDuration === null ||
-          !sliderRef.current ||
-          currentTime > audioDuration
-        ) {
-          stopPlayProgress();
-          return;
-        }
-        sliderRef.current.value = currentTime.toString();
-      };
-
-      progressIntervalRef.current = setInterval(updateProgress, 50);
-    },
-    [playerRef],
-  );
-
-  const fetchAndStart = useCallback(
-    async ({ path, startParams }: StartAudioParams) => {
-      const audio = await fetchAudioFromUrl(path);
-      await playerRef.current.playArrayBuffer(audio, startParams);
-      stopPlayProgress();
-      if (slider) await initPlayProgress(slider);
-    },
-    [initPlayProgress, playerRef, slider],
-  );
 
   const play = (params?: StartAudioParams) => {
     const path = params?.path ?? audioUrl;
@@ -99,73 +42,74 @@ const useAudioPlayer = (params?: UseAudioPlayerParams) => {
     playerRef.current.loop();
   };
 
-  const changeVolume = (value: number) => {
-    if (value > 1 || value < 0) {
-      return;
-    }
-    setAudioSettings((prev) => ({
-      ...prev,
-      volume: value,
-      muted: value === 0,
-    }));
-    playerRef.current.setVolume(value);
-  };
+  const changeVolume = useCallback(
+    (value: number) => {
+      if (value > 1 || value < 0) {
+        return;
+      }
+      setAudioSettings((prev) => ({
+        ...prev,
+        volume: value,
+        muted: value === 0,
+      }));
+      playerRef.current.setVolume(value);
+    },
+    [playerRef, setAudioSettings],
+  );
 
   const changeProgress = useCallback(
     async (value: number) => {
       const audioDuration = playerRef.current.getBufferDuration();
       const time = Math.max(0, Math.min(value, audioDuration ?? 0));
-      stopPlayProgress();
       playerRef.current.setProgress(time);
-      if (slider) await initPlayProgress(slider);
     },
-    [initPlayProgress, playerRef, slider],
+    [playerRef],
   );
 
-  /** Attach listeners for play progress on component mount */
+  /** Sliders logic */
+  const sliders = useAudioSlider({
+    sliders: params.sliders,
+    progressChange: changeProgress,
+    volumeChange: changeVolume,
+  });
+
+  const fetchAndStart = useCallback(
+    async ({ path, startParams }: StartAudioParams) => {
+      const audio = await fetchAudioFromUrl(path);
+      await playerRef.current.playArrayBuffer(audio, startParams);
+      await sliders.refresh();
+    },
+    [playerRef, sliders],
+  );
+
+  /** Attach listeners */
   useEffect(() => {
     playerRef.current.addListeners([
+      {
+        event: "start",
+        on: () => {
+          console.log("Audio playback started.");
+          void sliders.refresh();
+        },
+      },
       {
         event: "end",
         on: () => {
           console.log("Audio playback ended.");
-          stopPlayProgress();
-          if (slider) void initPlayProgress(slider);
+          void sliders.clear();
         },
       },
     ]);
-  }, [initPlayProgress, playerRef, slider]);
+  }, [playerRef, sliders]);
 
-  /** Set up slider change event listener for progress change trigger */
-  // TODO: make useSlider hook
-  useEffect(() => {
-    const sliderElement = slider?.current;
-    const onSliderChange = (event: Event) => {
-      if (event.target) {
-        const value = parseFloat((event.target as HTMLInputElement).value);
-        console.log("Slider value changed:", value);
-        changeProgress(value);
-      }
-    };
-
-    if (sliderElement) {
-      sliderElement.value = "0";
-      sliderElement.addEventListener("input", onSliderChange);
-    }
-
-    return () => {
-      sliderElement?.removeEventListener("input", onSliderChange);
-    };
-  }, [changeProgress, slider]);
-
-  /** Clean up all player related refs and close audio context */
+  /** Close audio context */
   useEffect(() => {
     const player = playerRef.current;
     return () => {
-      stopPlayProgress();
       player.closeContextSources();
     };
-  }, [playerRef]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- need this on mount only
+  }, []);
 
   return {
     play,

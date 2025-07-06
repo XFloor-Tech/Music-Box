@@ -7,7 +7,7 @@ type AudioBufferStartParams = {
   loop?: boolean;
 };
 
-type AudioEventType = "end";
+type AudioEventType = "start" | "end";
 type AudioEventListener = { event: AudioEventType; on: () => void };
 
 type AudioSettings = {
@@ -54,7 +54,6 @@ class AudioPlayer {
     this._paused = false;
     this._muted = settings?.muted ?? false;
     this._loop = settings?.loop ?? false;
-    console.log("AudioPlayer settings", settings);
 
     this._endTimer = null;
     this._listeners = {} as Record<AudioEventType, () => void>;
@@ -99,6 +98,7 @@ class AudioPlayer {
       this._listeners.end?.();
       // If the loop is not enabled, pause playback
       if (!this._loop) this.pause();
+      else this._listeners.start?.();
       // When playback ends, start over
       this._playerStartTime = this._audioContext.currentTime;
       this._startOffset = 0;
@@ -162,6 +162,8 @@ class AudioPlayer {
 
     this._setupTimers();
 
+    this._listeners.start?.();
+
     this._audioBufferSource.start(
       startParams?.when,
       startParams?.offset,
@@ -207,12 +209,14 @@ class AudioPlayer {
     if (this._paused && this.getContextState() === "suspended") {
       this._audioContext.resume();
       this._setupTimers();
+      this._listeners.start?.();
       this._paused = false;
     }
   }
 
   public setVolume(value: number) {
     this._muted = value === 0;
+    this._volume = value;
     this._gain.gain.setValueAtTime(value, this._audioContext.currentTime);
   }
 
@@ -257,7 +261,7 @@ class AudioPlayer {
   }
 
   public getVolumeValue() {
-    return this._gain.gain.value;
+    return this._volume;
   }
 
   public getIsLoaded() {
