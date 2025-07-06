@@ -22,6 +22,11 @@ const useGetPlayerRef = () => {
       context,
       settings: audioSettings,
     });
+
+    // Close context and remove instance on unmount
+    return () => {
+      audioPlayerRef.current?.close();
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps -- only on mount
   }, []);
 

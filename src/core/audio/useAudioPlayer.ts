@@ -1,4 +1,4 @@
-import { useAtom, useSetAtom } from "jotai";
+import { useAtom } from "jotai";
 import { RefObject, useCallback, useEffect, useMemo, useState } from "react";
 import { type AudioBufferStartParams } from "./audio-player";
 import { audioSettingsAtom, broadcastAudioAtom } from "./audio-storage";
@@ -159,15 +159,6 @@ const useAudioPlayer = (params: UseAudioPlayerParams) => {
       },
     ]);
   }, [playerRef, sliders, updateAudioStates]);
-
-  // Close audio context
-  useEffect(() => {
-    const player = playerRef.current;
-    return () => {
-      player?.close();
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- need this on mount only
-  }, []);
 
   const states = useMemo(
     () => ({ ...audioStates, ...audioSettings }),
