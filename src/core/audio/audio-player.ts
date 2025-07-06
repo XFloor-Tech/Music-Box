@@ -8,7 +8,7 @@ type AudioBufferStartParams = {
   type?: "default" | "loop" | "progress";
 };
 
-type AudioEventType = "start" | "end";
+type AudioEventType = "start" | "end" | "pause" | "resume";
 type AudioEventListener = { event: AudioEventType; on: () => void };
 
 type AudioSettings = {
@@ -196,7 +196,7 @@ class AudioPlayer {
     if (!this._paused && this.getContextState() === "running" && !this._ended) {
       this._clearTimers();
       this._paused = true;
-      this._listeners.end?.();
+      this._listeners.pause?.();
       this._startOffset = this.getCurrentBufferProgress() ?? 0;
       this._playerStartTime = this._audioContext.currentTime;
       this._audioContext.suspend();
@@ -211,7 +211,7 @@ class AudioPlayer {
     ) {
       this._audioContext.resume();
       this._setupTimers();
-      this._listeners.start?.();
+      this._listeners.resume?.();
       this._paused = false;
     }
   }

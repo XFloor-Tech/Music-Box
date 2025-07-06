@@ -1,5 +1,5 @@
 import { useAtom, useSetAtom } from "jotai";
-import { useCallback, useEffect } from "react";
+import { RefObject, useCallback, useEffect, useState } from "react";
 import { type AudioBufferStartParams } from "./audio-player";
 import { audioSettingsAtom, broadcastAudioAtom } from "./audio-storage";
 import { fetchAudioFromUrl } from "./fetch-audio";
@@ -12,14 +12,37 @@ type StartAudioParams = {
 };
 
 type UseAudioPlayerParams = {
-  sliders: AudioSliders;
+  sliders: AudioSliders; // player sliders refs
+  wrapper?: RefObject<HTMLDivElement>; // player wrapper container ref
+};
+
+type AudioStates = {
+  isPlaying: boolean;
+  isPaused: boolean;
+  isLoaded: boolean;
+  isEnded: boolean;
+  isResumed: boolean;
+};
+
+const initialAudioStates: AudioStates = {
+  isPlaying: false,
+  isPaused: false,
+  isLoaded: false,
+  isEnded: false,
+  isResumed: false,
 };
 
 const useAudioPlayer = (params: UseAudioPlayerParams) => {
   const [audioUrl, setAudioUrl] = useAtom(broadcastAudioAtom);
   const setAudioSettings = useSetAtom(audioSettingsAtom);
 
+  const [audioStates, setAudioStates] = useState(initialAudioStates);
+
   const playerRef = useGetPlayerRef();
+
+  const updateAudioStates = useCallback((update: Partial<AudioStates>) => {
+    setAudioStates((prev) => ({ ...prev, ...update }));
+  }, []);
 
   const play = (params?: StartAudioParams) => {
     const path = params?.path ?? audioUrl;
@@ -76,10 +99,11 @@ const useAudioPlayer = (params: UseAudioPlayerParams) => {
   const fetchAndStart = useCallback(
     async ({ path, startParams }: StartAudioParams) => {
       const audio = await fetchAudioFromUrl(path);
+      updateAudioStates({ isLoaded: true });
       await playerRef.current?.playArrayBuffer(audio, startParams);
       await sliders.refresh();
     },
-    [playerRef, sliders],
+    [playerRef, sliders, updateAudioStates],
   );
 
   // Attach listeners
@@ -89,16 +113,52 @@ const useAudioPlayer = (params: UseAudioPlayerParams) => {
         event: "start",
         on: () => {
           void sliders.refresh();
+          updateAudioStates({
+            isPlaying: true,
+            isPaused: false,
+            isEnded: false,
+            isResumed: false,
+          });
         },
       },
       {
         event: "end",
         on: () => {
           void sliders.clear();
+          updateAudioStates({
+            isPlaying: false,
+            isPaused: false,
+            isEnded: true,
+            isResumed: false,
+          });
+        },
+      },
+      {
+        event: "pause",
+        on: () => {
+          void sliders.clear();
+          updateAudioStates({
+            isPlaying: false,
+            isPaused: true,
+            isEnded: false,
+            isResumed: false,
+          });
+        },
+      },
+      {
+        event: "resume",
+        on: () => {
+          void sliders.setup();
+          updateAudioStates({
+            isPlaying: true,
+            isPaused: false,
+            isEnded: false,
+            isResumed: true,
+          });
         },
       },
     ]);
-  }, [playerRef, sliders]);
+  }, [playerRef, sliders, updateAudioStates]);
 
   // Close audio context
   useEffect(() => {
@@ -117,6 +177,7 @@ const useAudioPlayer = (params: UseAudioPlayerParams) => {
     changeVolume,
     changeProgress,
     setAudioUrl,
+    states: audioStates,
   };
 };
 
