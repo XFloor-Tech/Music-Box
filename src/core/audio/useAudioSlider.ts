@@ -78,10 +78,12 @@ const useAudioSlider = (params: UseAudioSliderParams) => {
 
     // Progress events
     const onProgressMouseDown = () => {
+      // stop listening to progress updates while dragging
       clearIntervals();
     };
     const onProgressMouseUp = (event: Event) => {
       const value = parseFloat((event.target as HTMLInputElement).value);
+      // set progress on mouse release and setup listener in start event
       progressChange(value);
     };
     if (progressSlider) {

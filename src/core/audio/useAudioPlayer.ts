@@ -106,7 +106,7 @@ const useAudioPlayer = (params: UseAudioPlayerParams) => {
   useEffect(() => {
     const player = playerRef.current;
     return () => {
-      player.closeContextSources();
+      player.close();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps -- need this on mount only
   }, []);

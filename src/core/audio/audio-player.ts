@@ -25,7 +25,7 @@ type AudioScaffoldParams = {
  * Class that manages audio playback using the Web Audio API and provides basic audio functions.
  */
 class AudioPlayer {
-  private static _instance: AudioPlayer;
+  private static _instance: AudioPlayer | null;
 
   private _audioContext;
   private _audioBufferSource;
@@ -97,8 +97,8 @@ class AudioPlayer {
     this._endTimer = setTimeout(() => {
       this._listeners.end?.();
       // If the loop is not enabled, pause playback
-      if (!this._loop) this.pause();
-      else this._listeners.start?.();
+      // if (!this._loop) this.pause();
+      if (this._loop) this._listeners.start?.();
       // When playback ends, start over
       this._playerStartTime = this._audioContext.currentTime;
       this._startOffset = 0;
@@ -188,20 +188,23 @@ class AudioPlayer {
     await this.playAudioBuffer(audioBuffer, startParams);
   }
 
-  public closeContextSources() {
+  public close() {
     this.invalidateAudioBufferSource();
     this._gain.disconnect();
     this._audioContext.close();
     // Remove all listeners
     this._listeners = {} as Record<AudioEventType, () => void>;
+    AudioPlayer._instance = null;
   }
 
   public pause() {
     if (!this._paused && this.getContextState() === "running") {
-      this._audioContext.suspend();
-      this._startOffset = this.getCurrentBufferProgress() ?? 0;
       this._clearTimers();
       this._paused = true;
+      this._listeners.end?.();
+      this._startOffset = this.getCurrentBufferProgress() ?? 0;
+      this._playerStartTime = this._audioContext.currentTime;
+      this._audioContext.suspend();
     }
   }
 
@@ -280,7 +283,9 @@ class AudioPlayer {
 
     const elapsed = this._audioContext.currentTime - this._playerStartTime;
     const playbackRate = this._audioBufferSource.playbackRate.value;
-    const currentTime = this._startOffset + elapsed * playbackRate;
+    console.log("Elapsed time:", elapsed);
+    console.log("Start offset:", this._startOffset);
+    const currentTime = (this._startOffset + elapsed) * playbackRate;
 
     return currentTime;
   }
