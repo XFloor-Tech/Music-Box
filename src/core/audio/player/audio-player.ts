@@ -5,11 +5,12 @@ import {
   AudioEventListener,
   AudioScaffoldParams,
 } from "./types";
+import { IAudioPlayer } from "./IAudioPlayer";
 
 /*
  * Class that manages audio playback using the Web Audio API and provides basic audio functions.
  */
-class AudioPlayer {
+class AudioPlayer implements IAudioPlayer {
   private static _instance: AudioPlayer | null;
 
   private _audioContext;
