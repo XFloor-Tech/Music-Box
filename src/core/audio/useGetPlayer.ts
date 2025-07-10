@@ -1,13 +1,13 @@
-import { AudioContext } from "standardized-audio-context";
-import { useEffect, useRef } from "react";
-import { AudioPlayer } from "./player/audio-player";
 import { useAtomValue } from "jotai";
+import { useEffect } from "react";
+import { AudioContext } from "standardized-audio-context";
 import { audioSettingsAtom } from "./audio-storage";
+import { AudioPlayer } from "./player/audio-player";
 import { AudioScaffoldParams } from "./player/types";
 
-const useGetPlayerRef = () => {
-  const audioPlayerRef = useRef<AudioPlayer | null>(null);
+const audioPlayerRef = { current: null } as { current: AudioPlayer | null };
 
+const useGetPlayerRef = () => {
   const audioSettings = useAtomValue(audioSettingsAtom);
 
   // Wait until component is mounted to have access to window.AudioContext on client side

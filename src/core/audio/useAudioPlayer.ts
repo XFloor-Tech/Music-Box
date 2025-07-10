@@ -148,7 +148,7 @@ const useAudioPlayer = (params: UseAudioPlayerParams) => {
       {
         event: "resume",
         on: () => {
-          void sliders.setup();
+          void sliders.refresh();
           updateAudioStates({
             isPlaying: true,
             isPaused: false,
