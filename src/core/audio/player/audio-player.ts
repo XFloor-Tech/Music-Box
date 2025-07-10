@@ -1,27 +1,10 @@
 import { AudioContext } from "standardized-audio-context";
-
-type AudioBufferStartParams = {
-  when?: number;
-  offset?: number;
-  duration?: number;
-  loop?: boolean;
-  type?: "default" | "loop" | "progress";
-};
-
-type AudioEventType = "start" | "end" | "pause" | "resume";
-type AudioEventListener = { event: AudioEventType; on: () => void };
-
-type AudioSettings = {
-  volume: number;
-  loop: boolean;
-  muted: boolean;
-};
-
-type AudioScaffoldParams = {
-  listeners?: AudioEventListener[];
-  settings?: AudioSettings;
-  context?: AudioContext;
-};
+import {
+  AudioEventType,
+  AudioBufferStartParams,
+  AudioEventListener,
+  AudioScaffoldParams,
+} from "./types";
 
 /*
  * Class that manages audio playback using the Web Audio API and provides basic audio functions.
@@ -298,10 +281,4 @@ class AudioPlayer {
   }
 }
 
-export {
-  AudioPlayer,
-  type AudioBufferStartParams,
-  type AudioEventListener,
-  type AudioScaffoldParams,
-  type AudioSettings,
-};
+export { AudioPlayer };

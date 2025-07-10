@@ -1,8 +1,9 @@
 import { AudioContext } from "standardized-audio-context";
 import { useEffect, useRef } from "react";
-import { AudioPlayer, AudioScaffoldParams } from "./audio-player";
+import { AudioPlayer } from "./player/audio-player";
 import { useAtomValue } from "jotai";
 import { audioSettingsAtom } from "./audio-storage";
+import { AudioScaffoldParams } from "./player/types";
 
 const useGetPlayerRef = () => {
   const audioPlayerRef = useRef<AudioPlayer | null>(null);

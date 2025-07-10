@@ -1,5 +1,5 @@
 import { atomWithStorage } from "jotai/utils";
-import { AudioSettings } from "./audio-player";
+import { AudioSettings } from "./player/types";
 
 const broadcastAudioAtom = atomWithStorage<string | null>(
   "broadcast",

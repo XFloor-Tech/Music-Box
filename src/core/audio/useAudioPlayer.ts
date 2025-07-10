@@ -1,10 +1,10 @@
 import { useAtom } from "jotai";
 import { RefObject, useCallback, useEffect, useMemo, useState } from "react";
-import { type AudioBufferStartParams } from "./audio-player";
 import { audioSettingsAtom, broadcastAudioAtom } from "./audio-storage";
 import { fetchAudioFromUrl } from "./fetch-audio";
 import { AudioSliders, useAudioSlider } from "./useAudioSlider";
 import { useGetPlayerRef } from "./useGetPlayer";
+import { AudioBufferStartParams } from "./player/types";
 
 type StartAudioParams = {
   path: string;
