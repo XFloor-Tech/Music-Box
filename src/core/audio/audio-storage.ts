@@ -1,14 +1,14 @@
-import { atomWithStorage } from "jotai/utils";
-import { AudioSettings } from "./player/types";
+import { atomWithStorage } from 'jotai/utils';
+import { AudioSettings } from './player/types';
 
 const broadcastAudioAtom = atomWithStorage<string | null>(
-  "broadcast",
+  'broadcast',
   null,
   undefined,
   { getOnInit: true },
 );
 const audioSettingsAtom = atomWithStorage<AudioSettings>(
-  "audio-settings",
+  'audio-settings',
   {
     volume: 0.5,
     loop: false,

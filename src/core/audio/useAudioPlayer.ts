@@ -1,11 +1,11 @@
-import { useAtom } from "jotai";
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { audioSettingsAtom, broadcastAudioAtom } from "./audio-storage";
-import { fetchAudioFromUrl } from "./fetch-audio";
-import { AudioSliders, useAudioSlider } from "./useAudioSlider";
-import { useGetPlayerRef } from "./useGetPlayer";
-import { AudioBufferStartParams } from "./player/types";
-import { useAudioKeyControl } from "./useAudioKeyPress";
+import { useAtom } from 'jotai';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { audioSettingsAtom, broadcastAudioAtom } from './audio-storage';
+import { fetchAudioFromUrl } from './fetch-audio';
+import { AudioSliders, useAudioSlider } from './useAudioSlider';
+import { useGetPlayerRef } from './useGetPlayer';
+import { AudioBufferStartParams } from './player/types';
+import { useAudioKeyControl } from './useAudioKeyPress';
 
 type StartAudioParams = {
   path: string;
@@ -47,7 +47,7 @@ const useAudioPlayer = (params: UseAudioPlayerParams) => {
   const play = (params?: StartAudioParams) => {
     const path = params?.path ?? audioUrl;
     if (!path) {
-      throw new Error("No audio URL provided to play.");
+      throw new Error('No audio URL provided to play.');
     }
     void fetchAndStart({ path, startParams: params?.startParams });
   };
@@ -113,7 +113,7 @@ const useAudioPlayer = (params: UseAudioPlayerParams) => {
   useEffect(() => {
     playerRef.current?.addListeners([
       {
-        event: "start",
+        event: 'start',
         on: () => {
           void sliders.refresh();
           updateAudioStates({
@@ -125,7 +125,7 @@ const useAudioPlayer = (params: UseAudioPlayerParams) => {
         },
       },
       {
-        event: "end",
+        event: 'end',
         on: () => {
           void sliders.clear();
           updateAudioStates({
@@ -137,7 +137,7 @@ const useAudioPlayer = (params: UseAudioPlayerParams) => {
         },
       },
       {
-        event: "pause",
+        event: 'pause',
         on: () => {
           void sliders.clear();
           updateAudioStates({
@@ -149,7 +149,7 @@ const useAudioPlayer = (params: UseAudioPlayerParams) => {
         },
       },
       {
-        event: "resume",
+        event: 'resume',
         on: () => {
           void sliders.refresh();
           updateAudioStates({

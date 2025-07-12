@@ -1,6 +1,6 @@
-import { useEffect, useRef } from "react";
-import { useGetPlayerRef } from "./useGetPlayer";
-import { throttle } from "lodash";
+import { useEffect, useRef } from 'react';
+import { useGetPlayerRef } from './useGetPlayer';
+import { throttle } from 'lodash';
 
 /*
  * Handles audio player controls via keyboard events.
@@ -13,9 +13,9 @@ const useAudioKeyControl = () => {
     const player = playerRef.current;
 
     const throttledPause = throttle(() => {
-      if (player && player.getContextState() === "running") {
+      if (player && player.getContextState() === 'running') {
         player.pause();
-      } else if (player && player.getContextState() === "suspended") {
+      } else if (player && player.getContextState() === 'suspended') {
         player.resume();
       }
     }, 250);
@@ -39,41 +39,41 @@ const useAudioKeyControl = () => {
 
       if (!playerRef.current) return;
 
-      if (key === " " && !isSpacePressingRef.current) {
+      if (key === ' ' && !isSpacePressingRef.current) {
         isSpacePressingRef.current = true;
         throttledPause();
       }
 
-      if (key === "arrowright") {
+      if (key === 'arrowright') {
         throttledChangeProgress();
       }
 
-      if (key === "arrowleft") {
+      if (key === 'arrowleft') {
         throttledChangeProgress(true);
       }
 
-      if (key === "arrowup") {
+      if (key === 'arrowup') {
         throttledSetVolume();
       }
 
-      if (key === "arrowdown") {
+      if (key === 'arrowdown') {
         throttledSetVolume(true);
       }
     };
 
     const onKeyUp = (event: KeyboardEvent) => {
       const key = event.key.toLowerCase();
-      if (key === " ") {
+      if (key === ' ') {
         isSpacePressingRef.current = false;
       }
     };
 
-    document.addEventListener("keydown", onKeyDown);
-    document.addEventListener("keyup", onKeyUp);
+    document.addEventListener('keydown', onKeyDown);
+    document.addEventListener('keyup', onKeyUp);
 
     return () => {
-      document.removeEventListener("keydown", onKeyDown);
-      document.removeEventListener("keyup", onKeyUp);
+      document.removeEventListener('keydown', onKeyDown);
+      document.removeEventListener('keyup', onKeyUp);
       isSpacePressingRef.current = false;
     };
   }, [playerRef]);

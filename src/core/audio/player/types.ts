@@ -1,14 +1,14 @@
-import { AudioContext } from "standardized-audio-context";
+import { AudioContext } from 'standardized-audio-context';
 
 type AudioBufferStartParams = {
   when?: number;
   offset?: number;
   duration?: number;
   loop?: boolean;
-  type?: "default" | "loop" | "progress";
+  type?: 'default' | 'loop' | 'progress';
 };
 
-type AudioEventType = "start" | "end" | "pause" | "resume";
+type AudioEventType = 'start' | 'end' | 'pause' | 'resume';
 type AudioEventListener = { event: AudioEventType; on: () => void };
 
 type AudioSettings = {

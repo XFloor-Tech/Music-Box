@@ -1,6 +1,6 @@
-import { AudioBuffer } from "standardized-audio-context";
+import { AudioBuffer } from 'standardized-audio-context';
 
-import { AudioBufferStartParams, AudioEventListener } from "./types";
+import { AudioBufferStartParams, AudioEventListener } from './types';
 
 export interface IAudioPlayer {
   audioFromArrayBuffer(arrayBuffer: ArrayBuffer): Promise<AudioBuffer>;

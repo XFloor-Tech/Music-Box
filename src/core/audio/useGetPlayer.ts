@@ -1,9 +1,9 @@
-import { useAtomValue } from "jotai";
-import { useEffect } from "react";
-import { AudioContext } from "standardized-audio-context";
-import { audioSettingsAtom } from "./audio-storage";
-import { AudioPlayer } from "./player/audio-player";
-import { AudioScaffoldParams } from "./player/types";
+import { useAtomValue } from 'jotai';
+import { useEffect } from 'react';
+import { AudioContext } from 'standardized-audio-context';
+import { audioSettingsAtom } from './audio-storage';
+import { AudioPlayer } from './player/audio-player';
+import { AudioScaffoldParams } from './player/types';
 
 const audioPlayerRef = { current: null } as { current: AudioPlayer | null };
 

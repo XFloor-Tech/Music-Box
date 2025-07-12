@@ -1,5 +1,5 @@
-import { RefObject, useCallback, useEffect, useRef } from "react";
-import { useGetPlayerRef } from "./useGetPlayer";
+import { RefObject, useCallback, useEffect, useRef } from 'react';
+import { useGetPlayerRef } from './useGetPlayer';
 
 type AudioSliders = {
   progressSliderRef: RefObject<HTMLInputElement | null>;
@@ -34,10 +34,10 @@ const useAudioSlider = (params: UseAudioSliderParams) => {
     // Progress slider setup
     if (progressSliderRef?.current) {
       progressSliderRef.current.value =
-        player?.getCurrentBufferProgress()?.toString() ?? "0";
-      progressSliderRef.current.min = "0";
+        player?.getCurrentBufferProgress()?.toString() ?? '0';
+      progressSliderRef.current.min = '0';
       progressSliderRef.current.max =
-        player?.getBufferDuration()?.toString() ?? "100";
+        player?.getBufferDuration()?.toString() ?? '100';
 
       const updateProgress = () => {
         const audioDuration = player?.getBufferDuration();
@@ -62,11 +62,11 @@ const useAudioSlider = (params: UseAudioSliderParams) => {
 
     // Volume slider setup
     if (volumeSliderRef?.current) {
-      volumeSliderRef.current.step = "0.05";
+      volumeSliderRef.current.step = '0.05';
       volumeSliderRef.current.value =
-        player?.getVolumeValue().toString() ?? "0.5";
-      volumeSliderRef.current.min = "0";
-      volumeSliderRef.current.max = "1";
+        player?.getVolumeValue().toString() ?? '0.5';
+      volumeSliderRef.current.min = '0';
+      volumeSliderRef.current.max = '1';
 
       const updateVolume = () => {
         const volume = player?.getVolumeValue() ?? 0.5;
@@ -98,10 +98,10 @@ const useAudioSlider = (params: UseAudioSliderParams) => {
       progressChange(value);
     };
     if (progressSlider) {
-      progressSlider.addEventListener("mousedown", onProgressMouseDown);
-      progressSlider.addEventListener("mouseup", onProgressMouseUp);
-      progressSlider.addEventListener("touchstart", onProgressMouseDown);
-      progressSlider.addEventListener("touchend", onProgressMouseUp);
+      progressSlider.addEventListener('mousedown', onProgressMouseDown);
+      progressSlider.addEventListener('mouseup', onProgressMouseUp);
+      progressSlider.addEventListener('touchstart', onProgressMouseDown);
+      progressSlider.addEventListener('touchend', onProgressMouseUp);
     }
 
     // Volume events
@@ -110,16 +110,16 @@ const useAudioSlider = (params: UseAudioSliderParams) => {
       volumeChange(value);
     };
     if (volumeSlider) {
-      volumeSlider.addEventListener("input", onVolumeChange);
+      volumeSlider.addEventListener('input', onVolumeChange);
     }
 
     // Cleanup event listeners
     return () => {
-      progressSlider?.removeEventListener("mousedown", onProgressMouseDown);
-      progressSlider?.removeEventListener("mouseup", onProgressMouseUp);
-      progressSlider?.removeEventListener("touchstart", onProgressMouseDown);
-      progressSlider?.removeEventListener("touchend", onProgressMouseUp);
-      volumeSlider?.removeEventListener("input", onVolumeChange);
+      progressSlider?.removeEventListener('mousedown', onProgressMouseDown);
+      progressSlider?.removeEventListener('mouseup', onProgressMouseUp);
+      progressSlider?.removeEventListener('touchstart', onProgressMouseDown);
+      progressSlider?.removeEventListener('touchend', onProgressMouseUp);
+      volumeSlider?.removeEventListener('input', onVolumeChange);
     };
   }, [progressChange, progressSliderRef, volumeChange, volumeSliderRef]);
 

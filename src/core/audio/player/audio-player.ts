@@ -1,11 +1,11 @@
-import { AudioContext } from "standardized-audio-context";
+import { AudioContext } from 'standardized-audio-context';
 import {
   AudioEventType,
   AudioBufferStartParams,
   AudioEventListener,
   AudioScaffoldParams,
-} from "./types";
-import { IAudioPlayer } from "./IAudioPlayer";
+} from './types';
+import { IAudioPlayer } from './IAudioPlayer';
 
 /*
  * Class that manages audio playback using the Web Audio API and provides basic audio functions.
@@ -177,7 +177,7 @@ class AudioPlayer implements IAudioPlayer {
   }
 
   public pause() {
-    if (!this._paused && this.getContextState() === "running" && !this._ended) {
+    if (!this._paused && this.getContextState() === 'running' && !this._ended) {
       this._clearTimers();
       this._paused = true;
       this._listeners.pause?.();
@@ -190,7 +190,7 @@ class AudioPlayer implements IAudioPlayer {
   public resume() {
     if (
       this._paused &&
-      this.getContextState() === "suspended" &&
+      this.getContextState() === 'suspended' &&
       !this._ended
     ) {
       this._audioContext.resume();
