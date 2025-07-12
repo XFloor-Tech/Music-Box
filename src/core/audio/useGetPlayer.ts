@@ -21,6 +21,7 @@ const useGetPlayerRef = () => {
     const context = new AudioContext();
     audioPlayerRef.current = AudioPlayer.getInstance({
       context,
+      // settings go from local storage here
       settings: audioSettings,
     });
 

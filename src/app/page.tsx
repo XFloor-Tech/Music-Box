@@ -28,7 +28,7 @@ export default function Home() {
   }, [loop]);
 
   return (
-    <div className="flex flex-row gap-4 align-center w-full">
+    <div className="flex flex-row gap-4 align-center w-full bg-blue-400">
       <button onClick={onPlayClick}>play</button>
       <button onClick={onPauseClick}>pause</button>
       <button onClick={onResumeClick}>resume</button>

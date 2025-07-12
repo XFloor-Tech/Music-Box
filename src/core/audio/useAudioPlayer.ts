@@ -1,10 +1,11 @@
 import { useAtom } from "jotai";
-import { RefObject, useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { audioSettingsAtom, broadcastAudioAtom } from "./audio-storage";
 import { fetchAudioFromUrl } from "./fetch-audio";
 import { AudioSliders, useAudioSlider } from "./useAudioSlider";
 import { useGetPlayerRef } from "./useGetPlayer";
 import { AudioBufferStartParams } from "./player/types";
+import { useAudioKeyControl } from "./useAudioKeyPress";
 
 type StartAudioParams = {
   path: string;
@@ -13,7 +14,6 @@ type StartAudioParams = {
 
 type UseAudioPlayerParams = {
   sliders: AudioSliders; // player sliders refs
-  wrapper?: RefObject<HTMLDivElement>; // player wrapper container ref
 };
 
 type AudioStates = {
@@ -88,6 +88,9 @@ const useAudioPlayer = (params: UseAudioPlayerParams) => {
     },
     [playerRef],
   );
+
+  // Key press listener for audio controls
+  useAudioKeyControl();
 
   // Sliders logic
   const sliders = useAudioSlider({

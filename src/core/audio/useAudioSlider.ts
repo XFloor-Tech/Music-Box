@@ -19,6 +19,7 @@ const useAudioSlider = (params: UseAudioSliderParams) => {
   const playerRef = useGetPlayerRef();
 
   const progressIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const volumeIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   const clearIntervals = () => {
     if (progressIntervalRef.current) {
@@ -28,17 +29,19 @@ const useAudioSlider = (params: UseAudioSliderParams) => {
   };
 
   const setup = useCallback(async () => {
+    const player = playerRef.current;
+
     // Progress slider setup
     if (progressSliderRef?.current) {
       progressSliderRef.current.value =
-        playerRef.current?.getCurrentBufferProgress()?.toString() ?? "0";
+        player?.getCurrentBufferProgress()?.toString() ?? "0";
       progressSliderRef.current.min = "0";
       progressSliderRef.current.max =
-        playerRef.current?.getBufferDuration()?.toString() ?? "100";
+        player?.getBufferDuration()?.toString() ?? "100";
 
       const updateProgress = () => {
-        const audioDuration = playerRef.current?.getBufferDuration();
-        const currentTime = playerRef.current?.getCurrentBufferProgress();
+        const audioDuration = player?.getBufferDuration();
+        const currentTime = player?.getCurrentBufferProgress();
 
         if (
           currentTime === null ||
@@ -61,9 +64,16 @@ const useAudioSlider = (params: UseAudioSliderParams) => {
     if (volumeSliderRef?.current) {
       volumeSliderRef.current.step = "0.05";
       volumeSliderRef.current.value =
-        playerRef.current?.getVolumeValue().toString() ?? "0.5";
+        player?.getVolumeValue().toString() ?? "0.5";
       volumeSliderRef.current.min = "0";
       volumeSliderRef.current.max = "1";
+
+      const updateVolume = () => {
+        const volume = player?.getVolumeValue() ?? 0.5;
+        volumeSliderRef.current!.value = volume.toString();
+      };
+
+      volumeIntervalRef.current = setInterval(updateVolume, 50);
     }
   }, [playerRef, progressSliderRef, volumeSliderRef]);
 
@@ -90,6 +100,8 @@ const useAudioSlider = (params: UseAudioSliderParams) => {
     if (progressSlider) {
       progressSlider.addEventListener("mousedown", onProgressMouseDown);
       progressSlider.addEventListener("mouseup", onProgressMouseUp);
+      progressSlider.addEventListener("touchstart", onProgressMouseDown);
+      progressSlider.addEventListener("touchend", onProgressMouseUp);
     }
 
     // Volume events
@@ -105,6 +117,8 @@ const useAudioSlider = (params: UseAudioSliderParams) => {
     return () => {
       progressSlider?.removeEventListener("mousedown", onProgressMouseDown);
       progressSlider?.removeEventListener("mouseup", onProgressMouseUp);
+      progressSlider?.removeEventListener("touchstart", onProgressMouseDown);
+      progressSlider?.removeEventListener("touchend", onProgressMouseUp);
       volumeSlider?.removeEventListener("input", onVolumeChange);
     };
   }, [progressChange, progressSliderRef, volumeChange, volumeSliderRef]);
@@ -113,6 +127,10 @@ const useAudioSlider = (params: UseAudioSliderParams) => {
     setup();
     return () => {
       clearIntervals();
+      if (volumeIntervalRef.current) {
+        clearInterval(volumeIntervalRef.current);
+        volumeIntervalRef.current = null;
+      }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps -- need this on mount only
   }, []);

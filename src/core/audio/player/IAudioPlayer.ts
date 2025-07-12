@@ -12,12 +12,12 @@ export interface IAudioPlayer {
   close(): void;
   pause(): void;
   resume(): void;
-  setVolume(volume: number): void;
   loop(): void;
   getContextState(): AudioContextState;
   getCurrentTime(): number;
   getBufferDuration(): number | null;
   setProgress(time: number): void;
+  setVolume(volume: number): void;
   getVolumeValue(): number;
   getIsLoaded(): boolean;
   getIsLooped(): boolean;
