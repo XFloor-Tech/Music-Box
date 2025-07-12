@@ -5,7 +5,7 @@ import { fetchAudioFromUrl } from './fetch-audio';
 import { AudioSliders, useAudioSlider } from './useAudioSlider';
 import { useGetPlayerRef } from './useGetPlayer';
 import { AudioBufferStartParams } from './player/types';
-import { useAudioKeyControl } from './useAudioKeyPress';
+import { useAudioKeyControl } from './useAudioKeyControl';
 
 type StartAudioParams = {
   path: string;

@@ -1,6 +1,8 @@
 import { useEffect, useRef } from 'react';
 import { useGetPlayerRef } from './useGetPlayer';
 import { throttle } from 'lodash';
+import { useSetAtom } from 'jotai';
+import { audioSettingsAtom } from './audio-storage';
 
 /*
  * Handles audio player controls via keyboard events.
@@ -8,6 +10,8 @@ import { throttle } from 'lodash';
 const useAudioKeyControl = () => {
   const playerRef = useGetPlayerRef();
   const isSpacePressingRef = useRef(false);
+
+  const setAudioSettings = useSetAtom(audioSettingsAtom);
 
   useEffect(() => {
     const player = playerRef.current;
@@ -30,9 +34,15 @@ const useAudioKeyControl = () => {
 
     const throttledSetVolume = throttle((down?: boolean) => {
       const volume = player?.getVolumeValue() ?? 0.5;
-      const value = volume + (down ? -0.1 : 0.1);
+      const value = Number((volume + (down ? -0.1 : 0.1)).toFixed(2));
+      if (value > 1 || value < 0) return;
       player?.setVolume(Math.max(0, Math.min(value, 1)));
-    }, 100);
+      setAudioSettings((prev) => ({
+        ...prev,
+        volume: value,
+        muted: value === 0,
+      }));
+    }, 50);
 
     const onKeyDown = (event: KeyboardEvent) => {
       const key = event.key.toLowerCase();
@@ -76,7 +86,7 @@ const useAudioKeyControl = () => {
       document.removeEventListener('keyup', onKeyUp);
       isSpacePressingRef.current = false;
     };
-  }, [playerRef]);
+  }, [playerRef, setAudioSettings]);
 };
 
 export { useAudioKeyControl };
