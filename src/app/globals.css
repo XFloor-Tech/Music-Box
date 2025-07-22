@@ -1,5 +1,6 @@
-@import "tailwindcss";
-@import "tw-animate-css";
+@import url('https://fonts.googleapis.com/css2?family=Geist:wght@100..900&display=swap');
+@import 'tailwindcss';
+@import 'tw-animate-css';
 
 @custom-variant dark (&:is(.dark *));
 
@@ -36,6 +37,7 @@ a {
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
+
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -67,10 +69,42 @@ a {
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+
+  --color-rosewater: var(--rosewater);
+  --color-flamingo: var(--flamingo);
+  --color-pink: var(--pink);
+  --color-mauve: var(--mauve);
+  --color-red: var(--red);
+  --color-maroon: var(--maroon);
+  --color-peach: var(--peach);
+  --color-yellow: var(--yellow);
+  --color-green: var(--green);
+  --color-teal: var(--teal);
+  --color-sky: var(--sky);
+  --color-sapphire: var(--sapphire);
+  --color-blue: var(--blue);
+  --color-lavender: var(--lavender);
+  --color-text: var(--text);
+  --color-subtext1: var(--subtext1);
+  --color-subtext0: var(--subtext0);
+  --color-overlay2: var(--overlay2);
+  --color-overlay1: var(--overlay1);
+  --color-overlay0: var(--overlay0);
+  --color-surface2: var(--surface2);
+  --color-surface1: var(--surface1);
+  --color-surface0: var(--surface0);
+  --color-base: var(--base);
+  --color-mantle: var(--mantle);
+  --color-crust: var(--crust);
+
+  --font-geist: var(--geist);
+  --text-xss: var(--text-xss-size);
+  --text-xss--line-height: var(--text-xss-line-height);
 }
 
 :root {
   --radius: 0.625rem;
+
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);
@@ -102,6 +136,39 @@ a {
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+
+  /* Catppuccin - Latte */
+  --rosewater: #dc8a78;
+  --flamingo: #dd7878;
+  --pink: #ea76cb;
+  --mauve: #8839ef;
+  --red: #d20f39;
+  --maroon: #e64553;
+  --peach: #fe640b;
+  --yellow: #df8e1d;
+  --green: #40a02b;
+  --teal: #179299;
+  --sky: #04a5e5;
+  --sapphire: #209fb5;
+  --blue: #1e66f5;
+  --lavender: #7287fd;
+  --text: #4c4f69;
+  --subtext1: #5c5f77;
+  --subtext0: #6c6f85;
+  --overlay2: #7c7f93;
+  --overlay1: #8c8f9f;
+  --overlay0: #9ca0ad;
+  --surface2: #acb0bc;
+  --surface1: #bcc0cc;
+  --surface0: #cdd0dc;
+  --base: #eff1f5;
+  --mantle: #e6e9ef;
+  --crust: #dce0e8;
+
+  --geist: 'Geist', sans-serif;
+
+  --text-xss-size: 10px;
+  --text-xss-line-height: 12px;
 }
 
 .dark {
@@ -141,6 +208,7 @@ a {
 @layer base {
   * {
     @apply border-border outline-ring/50;
+    @apply font-geist;
   }
   body {
     @apply bg-background text-foreground;
