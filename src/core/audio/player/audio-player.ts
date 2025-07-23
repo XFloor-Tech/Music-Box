@@ -27,7 +27,8 @@ class AudioPlayer implements IAudioPlayer {
   private _muted;
   private _loop;
 
-  private _endTimer: NodeJS.Timeout | null;
+  private _endTimer: NodeJS.Timeout | undefined;
+  private _tickTimer: NodeJS.Timeout | undefined;
   private _listeners;
 
   private constructor(params?: AudioScaffoldParams) {
@@ -43,7 +44,6 @@ class AudioPlayer implements IAudioPlayer {
     this._muted = settings?.muted ?? false;
     this._loop = settings?.loop ?? false;
 
-    this._endTimer = null;
     this._listeners = {} as Record<AudioEventType, () => void>;
     if (params?.listeners) {
       params.listeners.forEach((listener) => {
@@ -70,9 +70,8 @@ class AudioPlayer implements IAudioPlayer {
   }
 
   private _clearTimers() {
-    if (this._endTimer) {
-      clearTimeout(this._endTimer);
-    }
+    clearTimeout(this._endTimer);
+    clearInterval(this._tickTimer);
   }
 
   private _setupTimers() {
@@ -90,6 +89,11 @@ class AudioPlayer implements IAudioPlayer {
       this._playerStartTime = this._audioContext.currentTime;
       this._startOffset = 0;
     }, duration * 1000);
+
+    const tickInterval = 1000 * this._audioBufferSource.playbackRate.value;
+    this._tickTimer = setInterval(() => {
+      this._listeners.tick?.();
+    }, tickInterval);
   }
 
   public audioFromArrayBuffer(arrayBuffer: ArrayBuffer) {

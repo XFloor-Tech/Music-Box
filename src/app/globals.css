@@ -98,8 +98,8 @@ a {
   --color-crust: var(--crust);
 
   --font-geist: var(--geist);
-  --text-xss: var(--text-xss-size);
-  --text-xss--line-height: var(--text-xss-line-height);
+  --text-xxs: var(--text-xxs-size);
+  --text-xxs--line-height: var(--text-xxs-line-height);
 }
 
 :root {
@@ -167,8 +167,8 @@ a {
 
   --geist: 'Geist', sans-serif;
 
-  --text-xss-size: 10px;
-  --text-xss-line-height: 12px;
+  --text-xxs-size: 10px;
+  --text-xxs-line-height: 12px;
 }
 
 .dark {

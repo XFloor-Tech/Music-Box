@@ -7,6 +7,7 @@ const broadcastAudioAtom = atomWithStorage<string | null>(
   undefined,
   { getOnInit: true },
 );
+
 const audioSettingsAtom = atomWithStorage<AudioSettings>(
   'audio-settings',
   {

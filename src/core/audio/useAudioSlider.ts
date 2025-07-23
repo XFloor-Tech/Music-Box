@@ -7,14 +7,14 @@ type AudioSliders = {
 };
 
 type UseAudioSliderParams = {
-  sliders: AudioSliders;
+  sliders?: AudioSliders;
   progressChange: (value: number) => Promise<void>;
   volumeChange: (value: number) => void;
 };
 
 const useAudioSlider = (params: UseAudioSliderParams) => {
   const { sliders, progressChange, volumeChange } = params;
-  const { progressSliderRef, volumeSliderRef } = sliders;
+  const { progressSliderRef, volumeSliderRef } = sliders ?? {};
 
   const playerRef = useGetPlayerRef();
 

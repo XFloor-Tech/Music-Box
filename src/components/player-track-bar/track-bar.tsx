@@ -12,14 +12,13 @@ import {
   Volume1,
 } from 'lucide-react';
 import { Slider } from '../ui/slider';
+import { progressFromRawValue } from './utils';
 
 const PlayerTrackBar: FC = () => {
   const progressSliderRef = useRef<HTMLInputElement | null>(null);
   const volumeSliderRef = useRef<HTMLInputElement | null>(null);
 
-  const { play, pause, resume, loop } = useAudioPlayer({
-    sliders: { progressSliderRef, volumeSliderRef },
-  });
+  const { play, pause, resume, loop, states } = useAudioPlayer();
 
   const onPlayClick = useCallback(() => {
     play({ path: '176.mp3' });
@@ -47,6 +46,7 @@ const PlayerTrackBar: FC = () => {
           variant='ghost'
           size='icon'
           className='rounded-full bg-neutral-50'
+          onClick={onPlayClick}
         >
           <Play size={24} className='text-pink' />
         </Button>
@@ -64,13 +64,42 @@ const PlayerTrackBar: FC = () => {
         </Button>
       </div>
 
+      <div className='flex flex-1 flex-col items-start gap-[6px]'>
+        <div className='flex w-full items-center justify-between'>
+          <div className='flex flex-col'>
+            <p className='max-w-128 overflow-hidden text-xs font-semibold text-nowrap text-ellipsis text-neutral-50'>
+              Track name (feat. Other One)
+            </p>
+            <span className='text-xxs font-medium text-neutral-400'>
+              Artist Name
+            </span>
+          </div>
+
+          <span className='text-xs text-nowrap whitespace-nowrap text-neutral-100'>
+            {progressFromRawValue(states.progress)}
+          </span>
+        </div>
+
+        <Slider
+          aria-label='player-progress-slider'
+          ref={progressSliderRef}
+          value={[states.progress]}
+          min={0}
+          max={states.duration}
+        />
+      </div>
+
       <div className='flex items-center gap-[8px]'>
         <div className='flex items-center gap-[12px]'>
           <Button variant='ghost' size='icon-sm'>
             <Volume1 size={16} className='text-pink' />
           </Button>
 
-          <Slider className='h-[4px] w-[120px]' />
+          <Slider
+            aria-label='player-volume-slider'
+            className='h-[4px] w-[120px]'
+            ref={volumeSliderRef}
+          />
         </div>
 
         <Button variant='ghost' size='icon'>

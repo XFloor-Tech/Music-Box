@@ -4,6 +4,7 @@ import './globals.css';
 import { Provider } from 'jotai';
 import { ThemeProvider } from '@/components/theme-provider';
 
+// TODO: Maybe delete this declaration as we define fonts in globals.css
 const geistSans = Geist({
   variable: '--font-geist-sans',
   subsets: ['latin'],

@@ -22,6 +22,8 @@ type AudioStates = {
   isLoaded: boolean;
   isEnded: boolean;
   isResumed: boolean;
+  progress: number;
+  duration: number;
 };
 
 const initialAudioStates: AudioStates = {
@@ -30,9 +32,11 @@ const initialAudioStates: AudioStates = {
   isLoaded: false,
   isEnded: false,
   isResumed: false,
+  progress: 0,
+  duration: 0,
 };
 
-const useAudioPlayer = (params: UseAudioPlayerParams) => {
+const useAudioPlayer = (params?: UseAudioPlayerParams) => {
   const [audioUrl, setAudioUrl] = useAtom(broadcastAudioAtom);
   const [audioSettings, setAudioSettings] = useAtom(audioSettingsAtom);
 
@@ -85,8 +89,9 @@ const useAudioPlayer = (params: UseAudioPlayerParams) => {
       const audioDuration = playerRef.current?.getBufferDuration();
       const time = Math.max(0, Math.min(value, audioDuration ?? 0));
       playerRef.current?.setProgress(time);
+      updateAudioStates({ progress: time });
     },
-    [playerRef],
+    [playerRef, updateAudioStates],
   );
 
   // Key press listener for audio controls
@@ -94,7 +99,7 @@ const useAudioPlayer = (params: UseAudioPlayerParams) => {
 
   // Sliders logic
   const sliders = useAudioSlider({
-    sliders: params.sliders,
+    sliders: params?.sliders,
     progressChange: changeProgress,
     volumeChange: changeVolume,
   });
@@ -121,6 +126,7 @@ const useAudioPlayer = (params: UseAudioPlayerParams) => {
             isPaused: false,
             isEnded: false,
             isResumed: false,
+            duration: playerRef.current?.getBufferDuration() ?? 0,
           });
         },
       },
@@ -157,6 +163,14 @@ const useAudioPlayer = (params: UseAudioPlayerParams) => {
             isPaused: false,
             isEnded: false,
             isResumed: true,
+          });
+        },
+      },
+      {
+        event: 'tick',
+        on: () => {
+          updateAudioStates({
+            progress: playerRef.current?.getCurrentBufferProgress() ?? 0,
           });
         },
       },
