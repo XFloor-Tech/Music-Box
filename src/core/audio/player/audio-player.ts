@@ -20,6 +20,7 @@ class AudioPlayer implements IAudioPlayer {
   private _playerStartTime;
   private _startOffset;
   private _volume;
+  private _elapsed;
 
   private _loaded;
   private _paused;
@@ -37,6 +38,7 @@ class AudioPlayer implements IAudioPlayer {
     this._playerStartTime = 0;
     this._startOffset = 0;
     this._volume = settings?.volume ?? 0.5;
+    this._elapsed = 0;
 
     this._loaded = false;
     this._paused = false;
@@ -80,20 +82,25 @@ class AudioPlayer implements IAudioPlayer {
       (this.getBufferDuration() ?? 0) - this._startOffset,
     );
 
+    const tickInterval = 1000 * this._audioBufferSource.playbackRate.value;
+    this._tickTimer = setInterval(() => {
+      this._elapsed += tickInterval / 1000;
+      this._listeners.tick?.();
+    }, tickInterval);
+
     // Set up timer manually, because there's not good native way to listen for end of playback
     this._endTimer = setTimeout(() => {
       this._listeners.end?.();
       if (this._loop) this._listeners.start?.();
-      else this._ended = true;
+      if (!this._loop) {
+        this._ended = true;
+        this._clearTimers();
+      }
       // When playback ends, start over
       this._playerStartTime = this._audioContext.currentTime;
       this._startOffset = 0;
+      this._elapsed = 0;
     }, duration * 1000);
-
-    const tickInterval = 1000 * this._audioBufferSource.playbackRate.value;
-    this._tickTimer = setInterval(() => {
-      this._listeners.tick?.();
-    }, tickInterval);
   }
 
   public audioFromArrayBuffer(arrayBuffer: ArrayBuffer) {
@@ -135,6 +142,7 @@ class AudioPlayer implements IAudioPlayer {
     this._playerStartTime = this._audioContext.currentTime;
     // Update start offset if provided
     this._startOffset = startParams?.offset ?? 0;
+    this._elapsed = this._startOffset;
 
     this._audioBufferSource.buffer = audioBuffer;
     this._loaded = true;
@@ -146,7 +154,9 @@ class AudioPlayer implements IAudioPlayer {
     this._audioBufferSource.loopEnd = audioBuffer.duration;
     this._loop = looped;
 
-    this._setupTimers();
+    if (!this._paused) {
+      this._setupTimers();
+    }
 
     if (startParams?.type !== 'progress') {
       this._listeners.start?.();
@@ -187,7 +197,8 @@ class AudioPlayer implements IAudioPlayer {
       this._clearTimers();
       this._paused = true;
       this._listeners.pause?.();
-      this._startOffset = this.getCurrentBufferProgress() ?? 0;
+      // this._startOffset = this.getCurrentBufferProgress() ?? 0;
+      this._startOffset = this._elapsed;
       this._playerStartTime = this._audioContext.currentTime;
       this._audioContext.suspend();
     }
@@ -248,6 +259,7 @@ class AudioPlayer implements IAudioPlayer {
     if (value < 0 || !duration || value > duration) {
       return;
     }
+    this._startOffset = value;
 
     this._playCurrentAudioBuffer({
       when: 0,
@@ -269,6 +281,7 @@ class AudioPlayer implements IAudioPlayer {
     return this._loop;
   }
 
+  // unstable: calculates wrong elapsed time on progress change because of assumingly audiocontext currentTime
   public getCurrentBufferProgress() {
     const currentBuffer = this._audioBufferSource.buffer;
     if (!currentBuffer) {
@@ -280,6 +293,10 @@ class AudioPlayer implements IAudioPlayer {
     const currentTime = (this._startOffset + elapsed) * playbackRate;
 
     return currentTime;
+  }
+
+  public getElapsedTime() {
+    return this._elapsed;
   }
 
   public addListeners(listeners: AudioEventListener[]) {

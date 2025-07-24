@@ -1,12 +1,11 @@
 import { useAudioPlayer } from '@/core/audio/useAudioPlayer';
-import { FC, useCallback, useRef } from 'react';
+import { FC } from 'react';
 import { Button } from '../ui/button';
 import {
   ChevronFirst,
   ChevronLast,
   Ellipsis,
   Heart,
-  Play,
   Repeat,
   Shuffle,
   Volume1,
@@ -19,10 +18,6 @@ import { TrackPlayButton } from './track-play-button';
 const PlayerTrackBar: FC = () => {
   const { play, pause, resume, loop, states, changeProgress } =
     useAudioPlayer();
-
-  const onLoopClick = useCallback(() => {
-    loop();
-  }, [loop]);
 
   return (
     <div className='sticky flex h-[58px] w-full flex-row justify-start gap-[40px] overflow-hidden rounded-[16px] border border-neutral-600 bg-neutral-800 px-[24px] py-[10px] align-middle'>
@@ -44,8 +39,12 @@ const PlayerTrackBar: FC = () => {
       </div>
 
       <div className='flex items-center gap-[16px]'>
-        <Button variant='ghost' size='icon-sm'>
-          <Repeat size={16} className='text-pink' />
+        <Button variant='ghost' size='icon-sm' onClick={loop}>
+          <Repeat
+            size={16}
+            className={states.loop ? 'text-pink' : 'text-neutral-50'}
+            suppressHydrationWarning
+          />
         </Button>
         <Button variant='ghost' size='icon-sm'>
           <Shuffle size={16} className='text-pink' />

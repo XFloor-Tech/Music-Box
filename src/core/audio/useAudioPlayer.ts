@@ -139,6 +139,7 @@ const useAudioPlayer = (params?: UseAudioPlayerParams) => {
             isPaused: false,
             isEnded: true,
             isResumed: false,
+            progress: 0,
           });
         },
       },
@@ -170,7 +171,7 @@ const useAudioPlayer = (params?: UseAudioPlayerParams) => {
         event: 'tick',
         on: () => {
           updateAudioStates({
-            progress: playerRef.current?.getCurrentBufferProgress() ?? 0,
+            progress: playerRef.current?.getElapsedTime() ?? 0,
           });
         },
       },
