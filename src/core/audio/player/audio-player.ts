@@ -148,7 +148,9 @@ class AudioPlayer implements IAudioPlayer {
 
     this._setupTimers();
 
-    this._listeners.start?.();
+    if (startParams?.type !== 'progress') {
+      this._listeners.start?.();
+    }
 
     this._audioBufferSource.start(
       startParams?.when,
@@ -251,6 +253,7 @@ class AudioPlayer implements IAudioPlayer {
       when: 0,
       offset: value,
       loop: this._loop,
+      type: 'progress',
     });
   }
 

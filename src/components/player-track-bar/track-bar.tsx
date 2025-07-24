@@ -13,43 +13,31 @@ import {
 } from 'lucide-react';
 import { Slider } from '../ui/slider';
 import { progressFromRawValue } from './utils';
+import { TrackProgressBar } from './track-progress';
+import { TrackPlayButton } from './track-play-button';
 
 const PlayerTrackBar: FC = () => {
-  const progressSliderRef = useRef<HTMLInputElement | null>(null);
-  const volumeSliderRef = useRef<HTMLInputElement | null>(null);
-
-  const { play, pause, resume, loop, states } = useAudioPlayer();
-
-  const onPlayClick = useCallback(() => {
-    play({ path: '176.mp3' });
-  }, [play]);
-
-  const onPauseClick = useCallback(() => {
-    pause();
-  }, [pause]);
-
-  const onResumeClick = useCallback(() => {
-    resume();
-  }, [resume]);
+  const { play, pause, resume, loop, states, changeProgress } =
+    useAudioPlayer();
 
   const onLoopClick = useCallback(() => {
     loop();
   }, [loop]);
 
   return (
-    <div className='sticky flex h-[58px] w-full flex-row justify-start gap-[40px] rounded-[16px] border border-neutral-600 bg-neutral-800 px-[24px] py-[10px] align-middle'>
+    <div className='sticky flex h-[58px] w-full flex-row justify-start gap-[40px] overflow-hidden rounded-[16px] border border-neutral-600 bg-neutral-800 px-[24px] py-[10px] align-middle'>
       <div className='flex items-center justify-between gap-[12px]'>
         <Button variant='ghost' size='icon-sm'>
           <ChevronFirst size={24} className='text-pink' />
         </Button>
-        <Button
-          variant='ghost'
-          size='icon'
-          className='rounded-full bg-neutral-50'
-          onClick={onPlayClick}
-        >
-          <Play size={24} className='text-pink' />
-        </Button>
+
+        <TrackPlayButton
+          states={states}
+          onPlay={play}
+          onPause={pause}
+          onResume={resume}
+        />
+
         <Button variant='ghost' size='icon-sm'>
           <ChevronLast size={24} className='text-pink' />
         </Button>
@@ -80,13 +68,7 @@ const PlayerTrackBar: FC = () => {
           </span>
         </div>
 
-        <Slider
-          aria-label='player-progress-slider'
-          ref={progressSliderRef}
-          value={[states.progress]}
-          min={0}
-          max={states.duration}
-        />
+        <TrackProgressBar states={states} onChange={changeProgress} />
       </div>
 
       <div className='flex items-center gap-[8px]'>
@@ -95,11 +77,7 @@ const PlayerTrackBar: FC = () => {
             <Volume1 size={16} className='text-pink' />
           </Button>
 
-          <Slider
-            aria-label='player-volume-slider'
-            className='h-[4px] w-[120px]'
-            ref={volumeSliderRef}
-          />
+          <Slider aria-label='player-volume-slider' className='w-30' />
         </div>
 
         <Button variant='ghost' size='icon'>

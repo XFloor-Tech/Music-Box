@@ -194,4 +194,4 @@ const useAudioPlayer = (params?: UseAudioPlayerParams) => {
   };
 };
 
-export { useAudioPlayer };
+export { useAudioPlayer, type AudioStates, type StartAudioParams };
