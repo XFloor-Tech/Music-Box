@@ -1,12 +1,5 @@
 import { useAudioPlayer } from '@/core/audio/useAudioPlayer';
-import {
-  ChevronFirst,
-  ChevronLast,
-  Ellipsis,
-  Heart,
-  Repeat,
-  Shuffle,
-} from 'lucide-react';
+import { ChevronFirst, ChevronLast, Ellipsis, Heart } from 'lucide-react';
 import { FC } from 'react';
 import { Button } from '../ui/button';
 import { TrackPlayButton } from './track-play-button';
@@ -22,8 +15,11 @@ const PlayerTrackBar: FC = () => {
   return (
     <div className='sticky flex h-[58px] w-full flex-row justify-start gap-[40px] overflow-hidden rounded-[16px] border border-neutral-600 bg-neutral-800 px-[24px] py-[10px] align-middle'>
       <div className='flex items-center justify-between gap-[12px]'>
-        <Button variant='ghost' size='icon-sm'>
-          <ChevronFirst size={24} className='text-pink' />
+        <Button className='group' variant='ghost' size='icon-sm'>
+          <ChevronFirst
+            size={24}
+            className='text-pink group-hover:text-pink/90'
+          />
         </Button>
 
         <TrackPlayButton
@@ -33,8 +29,11 @@ const PlayerTrackBar: FC = () => {
           onResume={resume}
         />
 
-        <Button variant='ghost' size='icon-sm'>
-          <ChevronLast size={24} className='text-pink' />
+        <Button className='group' variant='ghost' size='icon-sm'>
+          <ChevronLast
+            size={24}
+            className='text-pink group-hover:text-pink/90'
+          />
         </Button>
       </div>
 

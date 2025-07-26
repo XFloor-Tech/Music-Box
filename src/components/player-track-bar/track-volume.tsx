@@ -35,14 +35,18 @@ const TrackVolumeBar: FC<Props> = ({ states, onChange }) => {
 
   const icon = useMemo(() => {
     if (volume === 0) {
-      return <VolumeX size={16} className='text-pink' />;
+      return (
+        <VolumeX size={16} className='text-pink group-hover:text-pink/90' />
+      );
     }
 
     if (volume >= 0.5) {
-      return <Volume2 size={16} className='text-pink' />;
+      return (
+        <Volume2 size={16} className='text-pink group-hover:text-pink/90' />
+      );
     }
 
-    return <Volume1 size={16} className='text-pink' />;
+    return <Volume1 size={16} className='text-pink group-hover:text-pink/90' />;
   }, [volume]);
 
   const onVolumeClick = useCallback(() => {
@@ -57,7 +61,12 @@ const TrackVolumeBar: FC<Props> = ({ states, onChange }) => {
 
   return (
     <div className='flex items-center gap-[12px]'>
-      <Button variant='ghost' size='icon-sm' onClick={onVolumeClick}>
+      <Button
+        variant='ghost'
+        size='icon-sm'
+        onClick={onVolumeClick}
+        className='group'
+      >
         {icon}
       </Button>
 

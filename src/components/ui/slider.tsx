@@ -1,12 +1,13 @@
 'use client';
 
-import * as React from 'react';
 import * as SliderPrimitive from '@radix-ui/react-slider';
 
 import { cn } from '@/lib/utils';
+import { ReactNode, useMemo } from 'react';
 
 type Props = {
   thumbless?: boolean;
+  children?: ReactNode;
 };
 
 function Slider({
@@ -16,9 +17,10 @@ function Slider({
   min = 0,
   max = 100,
   thumbless = false,
+  children,
   ...props
 }: React.ComponentProps<typeof SliderPrimitive.Root> & Props) {
-  const _values = React.useMemo(
+  const _values = useMemo(
     () =>
       Array.isArray(value)
         ? value
@@ -63,6 +65,8 @@ function Slider({
             className='border-primary bg-background ring-ring/50 block size-4 shrink-0 rounded-full border opacity-0 shadow-sm transition-[color,box-shadow,opacity] group-hover:opacity-100 hover:ring-4 focus-visible:ring-4 focus-visible:outline-hidden disabled:pointer-events-none disabled:opacity-50'
           />
         ))}
+
+      {children}
     </SliderPrimitive.Root>
   );
 }

@@ -8,6 +8,7 @@ import {
   useState,
 } from 'react';
 import { Slider } from '../ui/slider';
+import { progressFromRawValue } from './utils';
 
 type Props = {
   states: AudioSettingsStates;
@@ -17,8 +18,10 @@ type Props = {
 const TrackProgressBar: FC<Props> = ({ states, onChange }) => {
   const [progress, setProgress] = useState([states.progress]);
   const [dragging, setDragging] = useState(false);
+  const [moving, setMoving] = useState(false);
 
   const sliderRef = useRef<HTMLSpanElement | null>(null);
+  const tipRef = useRef<HTMLDivElement | null>(null);
 
   const dragTimeoutRef = useRef<NodeJS.Timeout | undefined>(undefined);
 
@@ -28,9 +31,7 @@ const TrackProgressBar: FC<Props> = ({ states, onChange }) => {
 
   const onValueCommit = useCallback(
     (value: number[]) => {
-      if (value[0]) {
-        onChange?.(value[0]);
-      }
+      onChange?.(value[0]);
     },
     [onChange],
   );
@@ -46,9 +47,19 @@ const TrackProgressBar: FC<Props> = ({ states, onChange }) => {
       dragTimeoutRef.current = setTimeout(() => {
         setDragging(false);
       }, 0);
+      setMoving(false);
     };
     const handlePointerMove = (event: PointerEvent) => {
-      if (event.pressure > 0) {
+      if (event.pressure > 0 && tipRef.current) {
+        setMoving(true);
+        const tip = tipRef.current;
+        // const offset = event.offsetX - tip.getBoundingClientRect().width / 2; -- trying to get right tip width but as its hidden its gone get itchy as my asshole
+        const pointerXOffset = Math.min(
+          slider?.getBoundingClientRect().width ?? 100,
+          Math.max(0, event.offsetX),
+        );
+        const offset = pointerXOffset - 27;
+        tip.style.transform = `translateX(${offset}px)`;
       }
     };
 
@@ -71,6 +82,11 @@ const TrackProgressBar: FC<Props> = ({ states, onChange }) => {
     [dragging, progress, states],
   );
 
+  const showTip = useMemo(
+    () => states.isLoaded && moving,
+    [moving, states.isLoaded],
+  );
+
   return (
     <Slider
       aria-label='player-progress-slider'
@@ -82,7 +98,17 @@ const TrackProgressBar: FC<Props> = ({ states, onChange }) => {
       onValueChange={onValueChange}
       onValueCommit={onValueCommit}
       thumbless
-    />
+    >
+      <div
+        className={`${showTip ? 'flex' : 'hidden'} text-text absolute bottom-1 z-20 flex-col items-center text-sm`}
+        ref={tipRef}
+      >
+        <span className='flex items-center justify-center rounded-md bg-neutral-50 px-3 py-1.5 text-sm after:content-[``]'>
+          {progressFromRawValue(value[0])}
+        </span>
+        <span className='border-5 border-t-5 border-transparent border-t-neutral-50' />
+      </div>
+    </Slider>
   );
 };
 
