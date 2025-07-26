@@ -14,9 +14,10 @@ import { Slider } from '../ui/slider';
 import { progressFromRawValue } from './utils';
 import { TrackProgressBar } from './track-progress';
 import { TrackPlayButton } from './track-play-button';
+import { TrackVolumeBar } from './track-volume';
 
 const PlayerTrackBar: FC = () => {
-  const { play, pause, resume, loop, states, changeProgress } =
+  const { play, pause, resume, loop, states, changeProgress, changeVolume } =
     useAudioPlayer();
 
   return (
@@ -71,13 +72,7 @@ const PlayerTrackBar: FC = () => {
       </div>
 
       <div className='flex items-center gap-[8px]'>
-        <div className='flex items-center gap-[12px]'>
-          <Button variant='ghost' size='icon-sm'>
-            <Volume1 size={16} className='text-pink' />
-          </Button>
-
-          <Slider aria-label='player-volume-slider' className='w-30' />
-        </div>
+        <TrackVolumeBar states={states} onChange={changeVolume} />
 
         <Button variant='ghost' size='icon'>
           <Heart size={16} className='text-neutral-50' />

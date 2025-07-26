@@ -45,7 +45,7 @@ const TrackProgressBar: FC<Props> = ({ states, onChange }) => {
       // timeout to allow the slider emit update before setting dragging to false and changing back to progress listen value
       dragTimeoutRef.current = setTimeout(() => {
         setDragging(false);
-      }, 150);
+      }, 0);
     };
 
     if (slider) {

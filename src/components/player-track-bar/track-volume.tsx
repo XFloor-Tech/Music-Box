@@ -1,0 +1,78 @@
+import { Volume1, Volume2, VolumeX } from 'lucide-react';
+import { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Button } from '../ui/button';
+import { Slider } from '../ui/slider';
+import { AudioSettingsStates } from '@/core/audio/useAudioPlayer';
+
+type Props = {
+  states: AudioSettingsStates;
+  onChange?: (value: number) => void;
+};
+
+const TrackVolumeBar: FC<Props> = ({ states, onChange }) => {
+  const [volume, setVolume] = useState(0.5);
+  const volumeBeforeMuteRef = useRef(0);
+
+  useEffect(() => {
+    setVolume(states.volume);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- on mount only. we do this to fetch local storage value from client after hydration
+  }, []);
+
+  const updateVolume = useCallback(
+    (value: number) => {
+      setVolume(value);
+      onChange?.(value);
+    },
+    [onChange],
+  );
+
+  const onSliderChange = useCallback(
+    (value: number[]) => {
+      updateVolume(value[0]);
+    },
+    [updateVolume],
+  );
+
+  const icon = useMemo(() => {
+    if (volume === 0) {
+      return <VolumeX size={16} className='text-pink' />;
+    }
+
+    if (volume >= 0.5) {
+      return <Volume2 size={16} className='text-pink' />;
+    }
+
+    return <Volume1 size={16} className='text-pink' />;
+  }, [volume]);
+
+  const onVolumeClick = useCallback(() => {
+    if (volume === 0) {
+      updateVolume(volumeBeforeMuteRef.current);
+      return;
+    }
+
+    volumeBeforeMuteRef.current = volume;
+    updateVolume(0);
+  }, [updateVolume, volume]);
+
+  return (
+    <div className='flex items-center gap-[12px]'>
+      <Button variant='ghost' size='icon-sm' onClick={onVolumeClick}>
+        {icon}
+      </Button>
+
+      <Slider
+        aria-label='player-volume-slider'
+        min={0}
+        max={1}
+        step={0.01}
+        defaultValue={[volume]}
+        value={[volume]}
+        className='w-30'
+        onValueChange={onSliderChange}
+      />
+    </div>
+  );
+};
+
+export { TrackVolumeBar };

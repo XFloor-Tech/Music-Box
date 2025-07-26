@@ -4,7 +4,7 @@ import { audioSettingsAtom, broadcastAudioAtom } from './audio-storage';
 import { fetchAudioFromUrl } from './fetch-audio';
 import { AudioSliders, useAudioSlider } from './useAudioSlider';
 import { useGetPlayerRef } from './useGetPlayer';
-import { AudioBufferStartParams } from './player/types';
+import { AudioBufferStartParams, AudioSettings } from './player/types';
 import { useAudioKeyControl } from './useAudioKeyControl';
 
 type StartAudioParams = {
@@ -25,6 +25,8 @@ type AudioStates = {
   progress: number;
   duration: number;
 };
+
+type AudioSettingsStates = AudioStates & AudioSettings;
 
 const initialAudioStates: AudioStates = {
   isPlaying: false,
@@ -195,4 +197,9 @@ const useAudioPlayer = (params?: UseAudioPlayerParams) => {
   };
 };
 
-export { useAudioPlayer, type AudioStates, type StartAudioParams };
+export {
+  useAudioPlayer,
+  type AudioStates,
+  type StartAudioParams,
+  type AudioSettingsStates,
+};
