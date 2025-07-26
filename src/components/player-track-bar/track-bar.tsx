@@ -1,6 +1,4 @@
 import { useAudioPlayer } from '@/core/audio/useAudioPlayer';
-import { FC } from 'react';
-import { Button } from '../ui/button';
 import {
   ChevronFirst,
   ChevronLast,
@@ -8,13 +6,14 @@ import {
   Heart,
   Repeat,
   Shuffle,
-  Volume1,
 } from 'lucide-react';
-import { Slider } from '../ui/slider';
-import { progressFromRawValue } from './utils';
-import { TrackProgressBar } from './track-progress';
+import { FC } from 'react';
+import { Button } from '../ui/button';
 import { TrackPlayButton } from './track-play-button';
+import { TrackProgressBar } from './track-progress';
 import { TrackVolumeBar } from './track-volume';
+import { progressFromRawValue } from './utils';
+import { TrackRepeatShuffle } from './track-repeat-shuffle';
 
 const PlayerTrackBar: FC = () => {
   const { play, pause, resume, loop, states, changeProgress, changeVolume } =
@@ -39,18 +38,7 @@ const PlayerTrackBar: FC = () => {
         </Button>
       </div>
 
-      <div className='flex items-center gap-[16px]'>
-        <Button variant='ghost' size='icon-sm' onClick={loop}>
-          <Repeat
-            size={16}
-            className={states.loop ? 'text-pink' : 'text-neutral-50'}
-            suppressHydrationWarning
-          />
-        </Button>
-        <Button variant='ghost' size='icon-sm'>
-          <Shuffle size={16} className='text-pink' />
-        </Button>
-      </div>
+      <TrackRepeatShuffle states={states} onLoop={loop} />
 
       <div className='flex flex-1 flex-col items-start gap-[6px]'>
         <div className='flex w-full items-center justify-between'>

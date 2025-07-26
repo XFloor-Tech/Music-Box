@@ -1,4 +1,4 @@
-import { AudioStates } from '@/core/audio/useAudioPlayer';
+import { AudioSettingsStates } from '@/core/audio/useAudioPlayer';
 import {
   FC,
   useCallback,
@@ -10,7 +10,7 @@ import {
 import { Slider } from '../ui/slider';
 
 type Props = {
-  states: AudioStates;
+  states: AudioSettingsStates;
   onChange?: (value: number) => void;
 };
 
@@ -47,14 +47,20 @@ const TrackProgressBar: FC<Props> = ({ states, onChange }) => {
         setDragging(false);
       }, 0);
     };
+    const handlePointerMove = (event: PointerEvent) => {
+      if (event.pressure > 0) {
+      }
+    };
 
     if (slider) {
       slider.addEventListener('pointerdown', handlePointerDown);
       slider.addEventListener('pointerup', handlePointerUp);
+      slider.addEventListener('pointermove', handlePointerMove);
 
       return () => {
         slider.removeEventListener('pointerdown', handlePointerDown);
         slider.removeEventListener('pointerup', handlePointerUp);
+        slider.removeEventListener('pointermove', handlePointerMove);
         clearTimeout(dragTimeoutRef.current);
       };
     }

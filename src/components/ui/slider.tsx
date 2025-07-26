@@ -52,7 +52,6 @@ function Slider({
           className={cn(
             'absolute bg-neutral-50 data-[orientation=horizontal]:h-full data-[orientation=vertical]:w-full',
           )}
-          // suppressHydrationWarning
         />
       </SliderPrimitive.Track>
 
