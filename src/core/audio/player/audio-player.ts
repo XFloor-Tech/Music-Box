@@ -267,6 +267,7 @@ class AudioPlayer implements IAudioPlayer {
       loop: this._loop,
       type: 'progress',
     });
+    this._listeners.tick?.();
   }
 
   public getVolumeValue() {

@@ -36,17 +36,25 @@ const TrackVolumeBar: FC<Props> = ({ states, onChange }) => {
   const icon = useMemo(() => {
     if (volume === 0) {
       return (
-        <VolumeX size={16} className='text-pink group-hover:text-pink/90' />
+        <VolumeX
+          size={16}
+          className='text-primary group-hover:text-primary/90'
+        />
       );
     }
 
     if (volume >= 0.5) {
       return (
-        <Volume2 size={16} className='text-pink group-hover:text-pink/90' />
+        <Volume2
+          size={16}
+          className='text-primary group-hover:text-primary/90'
+        />
       );
     }
 
-    return <Volume1 size={16} className='text-pink group-hover:text-pink/90' />;
+    return (
+      <Volume1 size={16} className='text-primary group-hover:text-primary/90' />
+    );
   }, [volume]);
 
   const onVolumeClick = useCallback(() => {

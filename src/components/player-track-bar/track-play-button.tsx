@@ -30,14 +30,14 @@ const TrackPlayButton: FC<Props> = ({ states, onPlay, onPause, onResume }) => {
 
   const icon = useMemo(() => {
     if (states.isPlaying && states.isLoaded) {
-      return <Pause size={24} className='text-pink' />;
+      return <Pause size={24} className='text-primary' />;
     }
 
     // if (states.isPaused || states.isResumed) {
-    //   return <Play size={24} className='text-pink' />;
+    //   return <Play size={24} className='text-primary' />;
     // }
 
-    return <Play size={24} className='text-pink' />;
+    return <Play size={24} className='text-primary' />;
   }, [states]);
 
   return (

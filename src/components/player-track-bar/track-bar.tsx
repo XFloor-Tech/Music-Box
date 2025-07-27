@@ -18,7 +18,7 @@ const PlayerTrackBar: FC = () => {
         <Button className='group' variant='ghost' size='icon-sm'>
           <ChevronFirst
             size={24}
-            className='text-pink group-hover:text-pink/90'
+            className='text-primary group-hover:text-primary/90'
           />
         </Button>
 
@@ -32,7 +32,7 @@ const PlayerTrackBar: FC = () => {
         <Button className='group' variant='ghost' size='icon-sm'>
           <ChevronLast
             size={24}
-            className='text-pink group-hover:text-pink/90'
+            className='text-primary group-hover:text-primary/90'
           />
         </Button>
       </div>
@@ -61,11 +61,21 @@ const PlayerTrackBar: FC = () => {
       <div className='flex items-center md:gap-1 lg:gap-2'>
         <TrackVolumeBar states={states} onChange={changeVolume} />
 
-        <Button variant='ghost' size='icon' className='hidden sm:inline-flex'>
-          <Heart size={16} className='text-neutral-50' />
+        <Button
+          variant='ghost'
+          size='icon'
+          className='group hidden sm:inline-flex'
+        >
+          <Heart
+            size={16}
+            className='text-neutral-50 group-hover:text-neutral-50/90'
+          />
         </Button>
-        <Button variant='ghost' size='icon'>
-          <Ellipsis size={16} className='text-neutral-50' />
+        <Button variant='ghost' size='icon' className='group'>
+          <Ellipsis
+            size={16}
+            className='text-neutral-50 group-hover:text-neutral-50/90'
+          />
         </Button>
       </div>
     </div>

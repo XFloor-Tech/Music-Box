@@ -38,7 +38,7 @@ const TrackRepeatShuffle: FC<Props> = ({ states, onLoop }) => {
           size={16}
           className={
             loop
-              ? 'text-pink group-hover:text-pink/90'
+              ? 'text-primary group-hover:text-primary/90'
               : 'text-neutral-50 group-hover:text-neutral-50/90'
           }
         />
@@ -53,7 +53,7 @@ const TrackRepeatShuffle: FC<Props> = ({ states, onLoop }) => {
           size={16}
           className={
             shuffle
-              ? 'text-pink group-hover:text-pink/90'
+              ? 'text-primary group-hover:text-primary/90'
               : 'text-neutral-50 group-hover:text-neutral-50/90'
           }
         />
