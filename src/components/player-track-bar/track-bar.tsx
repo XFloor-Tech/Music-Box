@@ -13,8 +13,8 @@ const PlayerTrackBar: FC = () => {
     useAudioPlayer();
 
   return (
-    <div className='sticky flex h-[58px] w-full flex-row justify-start gap-[40px] overflow-hidden rounded-[16px] border border-neutral-600 bg-neutral-800 px-[24px] py-[10px] align-middle'>
-      <div className='flex items-center justify-between gap-[12px]'>
+    <div className='sticky flex h-14.5 w-full flex-row justify-start gap-4 overflow-hidden rounded-[16px] border border-neutral-600 bg-neutral-800 px-6 py-2.5 align-middle md:gap-6 lg:gap-10'>
+      <div className='flex items-center justify-between gap-1 md:gap-2 lg:gap-3'>
         <Button className='group' variant='ghost' size='icon-sm'>
           <ChevronFirst
             size={24}
@@ -41,7 +41,7 @@ const PlayerTrackBar: FC = () => {
 
       <div className='flex flex-1 flex-col items-start gap-[6px]'>
         <div className='flex w-full items-center justify-between'>
-          <div className='flex flex-col'>
+          <div className='flex max-w-4/5 flex-col overflow-hidden'>
             <p className='max-w-128 overflow-hidden text-xs font-semibold text-nowrap text-ellipsis text-neutral-50'>
               Track name (feat. Other One)
             </p>
@@ -58,10 +58,10 @@ const PlayerTrackBar: FC = () => {
         <TrackProgressBar states={states} onChange={changeProgress} />
       </div>
 
-      <div className='flex items-center gap-[8px]'>
+      <div className='flex items-center md:gap-1 lg:gap-2'>
         <TrackVolumeBar states={states} onChange={changeVolume} />
 
-        <Button variant='ghost' size='icon'>
+        <Button variant='ghost' size='icon' className='hidden sm:inline-flex'>
           <Heart size={16} className='text-neutral-50' />
         </Button>
         <Button variant='ghost' size='icon'>

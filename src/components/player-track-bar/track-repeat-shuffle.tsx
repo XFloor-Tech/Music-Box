@@ -27,7 +27,7 @@ const TrackRepeatShuffle: FC<Props> = ({ states, onLoop }) => {
   }, []);
 
   return (
-    <div className='flex items-center gap-[16px]'>
+    <div className='hidden items-center gap-1 sm:flex md:gap-2 lg:gap-4'>
       <Button
         variant='ghost'
         size='icon-sm'

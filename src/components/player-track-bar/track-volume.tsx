@@ -60,12 +60,13 @@ const TrackVolumeBar: FC<Props> = ({ states, onChange }) => {
   }, [updateVolume, volume]);
 
   return (
-    <div className='flex items-center gap-[12px]'>
+    <div className='flex items-center gap-1 md:gap-2 lg:gap-3'>
       <Button
         variant='ghost'
         size='icon-sm'
         onClick={onVolumeClick}
         className='group'
+        aria-description='mute'
       >
         {icon}
       </Button>
@@ -77,7 +78,7 @@ const TrackVolumeBar: FC<Props> = ({ states, onChange }) => {
         step={0.01}
         defaultValue={[volume]}
         value={[volume]}
-        className='w-30'
+        className='w-10 md:w-20 lg:w-30'
         onValueChange={onSliderChange}
       />
     </div>
