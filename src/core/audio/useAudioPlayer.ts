@@ -1,54 +1,30 @@
 import { useAtom } from 'jotai';
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { audioSettingsAtom, broadcastAudioAtom } from './audio-storage';
+import { useCallback, useEffect, useMemo } from 'react';
+import {
+  audioSettingsAtom,
+  audioStatesAtom,
+  broadcastAudioAtom,
+} from './audio-storage';
 import { fetchAudioFromUrl } from './fetch-audio';
-import { AudioSliders, useAudioSlider } from './useAudioSlider';
-import { useGetPlayerRef } from './useGetPlayer';
-import { AudioBufferStartParams, AudioSettings } from './player/types';
+import { AudioStates, StartAudioParams, UseAudioPlayerParams } from './types';
 import { useAudioKeyControl } from './useAudioKeyControl';
-
-type StartAudioParams = {
-  path: string;
-  startParams?: AudioBufferStartParams;
-};
-
-type UseAudioPlayerParams = {
-  sliders: AudioSliders; // player sliders refs
-};
-
-type AudioStates = {
-  isPlaying: boolean;
-  isPaused: boolean;
-  isLoaded: boolean;
-  isEnded: boolean;
-  isResumed: boolean;
-  progress: number;
-  duration: number;
-};
-
-type AudioSettingsStates = AudioStates & AudioSettings;
-
-const initialAudioStates: AudioStates = {
-  isPlaying: false,
-  isPaused: false,
-  isLoaded: false,
-  isEnded: false,
-  isResumed: false,
-  progress: 0,
-  duration: 0,
-};
+import { useAudioSlider } from './useAudioSlider';
+import { useGetPlayerRef } from './useGetPlayer';
 
 const useAudioPlayer = (params?: UseAudioPlayerParams) => {
   const [audioUrl, setAudioUrl] = useAtom(broadcastAudioAtom);
   const [audioSettings, setAudioSettings] = useAtom(audioSettingsAtom);
 
-  const [audioStates, setAudioStates] = useState(initialAudioStates);
+  const [audioStates, setAudioStates] = useAtom(audioStatesAtom);
 
   const playerRef = useGetPlayerRef();
 
-  const updateAudioStates = useCallback((update: Partial<AudioStates>) => {
-    setAudioStates((prev) => ({ ...prev, ...update }));
-  }, []);
+  const updateAudioStates = useCallback(
+    (update: Partial<AudioStates>) => {
+      setAudioStates((prev) => ({ ...prev, ...update }));
+    },
+    [setAudioStates],
+  );
 
   const play = (params?: StartAudioParams) => {
     const path = params?.path ?? audioUrl;
@@ -197,9 +173,4 @@ const useAudioPlayer = (params?: UseAudioPlayerParams) => {
   };
 };
 
-export {
-  useAudioPlayer,
-  type AudioStates,
-  type StartAudioParams,
-  type AudioSettingsStates,
-};
+export { useAudioPlayer };

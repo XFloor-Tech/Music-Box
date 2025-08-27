@@ -7,14 +7,10 @@ import { TrackProgressBar } from './track-progress';
 import { TrackVolumeBar } from './track-volume';
 import { progressFromRawValue } from './utils';
 import { TrackRepeatShuffle } from './track-repeat-shuffle';
-import { useScreenSize } from '@/utils/screen-size';
 
 const PlayerTrackBar: FC = () => {
   const { play, pause, resume, loop, states, changeProgress, changeVolume } =
     useAudioPlayer();
-
-  const size = useScreenSize();
-  console.log(size);
 
   return (
     <div className='sticky flex h-14.5 w-full flex-row justify-start gap-4 overflow-hidden rounded-[16px] border border-neutral-600 bg-neutral-800 px-6 py-2.5 align-middle md:gap-6 lg:gap-10'>

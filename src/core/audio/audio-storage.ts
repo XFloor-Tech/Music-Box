@@ -1,5 +1,7 @@
 import { atomWithStorage } from 'jotai/utils';
 import { AudioSettings } from './player/types';
+import { atom } from 'jotai';
+import { AudioStates } from './types';
 
 const broadcastAudioAtom = atomWithStorage<string | null>(
   'broadcast',
@@ -19,4 +21,16 @@ const audioSettingsAtom = atomWithStorage<AudioSettings>(
   { getOnInit: true },
 );
 
-export { broadcastAudioAtom, audioSettingsAtom };
+const initialAudioStates: AudioStates = {
+  isPlaying: false,
+  isPaused: false,
+  isLoaded: false,
+  isEnded: false,
+  isResumed: false,
+  progress: 0,
+  duration: 0,
+};
+
+const audioStatesAtom = atom(initialAudioStates);
+
+export { broadcastAudioAtom, audioSettingsAtom, audioStatesAtom };
