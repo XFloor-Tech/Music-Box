@@ -1,4 +1,3 @@
-import { AudioSettingsStates } from '@/core/audio/useAudioPlayer';
 import {
   FC,
   useCallback,
@@ -9,6 +8,7 @@ import {
 } from 'react';
 import { Slider } from '../ui/slider';
 import { progressFromRawValue } from './utils';
+import { AudioSettingsStates } from '@/core/audio/types';
 
 type Props = {
   states: AudioSettingsStates;

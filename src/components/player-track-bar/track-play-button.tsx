@@ -1,10 +1,7 @@
-import {
-  AudioSettingsStates,
-  StartAudioParams,
-} from '@/core/audio/useAudioPlayer';
 import { Pause, Play } from 'lucide-react';
 import { FC, useCallback, useMemo } from 'react';
 import { Button } from '../ui/button';
+import { AudioSettingsStates, StartAudioParams } from '@/core/audio/types';
 
 type Props = {
   states: AudioSettingsStates;
@@ -32,10 +29,6 @@ const TrackPlayButton: FC<Props> = ({ states, onPlay, onPause, onResume }) => {
     if (states.isPlaying && states.isLoaded) {
       return <Pause size={24} className='text-primary' />;
     }
-
-    // if (states.isPaused || states.isResumed) {
-    //   return <Play size={24} className='text-primary' />;
-    // }
 
     return <Play size={24} className='text-primary' />;
   }, [states]);

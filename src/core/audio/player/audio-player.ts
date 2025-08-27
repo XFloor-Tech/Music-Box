@@ -197,7 +197,6 @@ class AudioPlayer implements IAudioPlayer {
       this._clearTimers();
       this._paused = true;
       this._listeners.pause?.();
-      // this._startOffset = this.getCurrentBufferProgress() ?? 0;
       this._startOffset = this._elapsed;
       this._playerStartTime = this._audioContext.currentTime;
       this._audioContext.suspend();
@@ -283,6 +282,7 @@ class AudioPlayer implements IAudioPlayer {
   }
 
   // unstable: calculates wrong elapsed time on progress change because of assumingly audiocontext currentTime
+  // use: getElapsedTime()
   public getCurrentBufferProgress() {
     const currentBuffer = this._audioBufferSource.buffer;
     if (!currentBuffer) {
