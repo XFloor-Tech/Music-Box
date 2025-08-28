@@ -26,7 +26,7 @@ const useAudioKeyControl = () => {
 
     const throttledChangeProgress = throttle((reverse?: boolean) => {
       const audioDuration = player?.getBufferDuration();
-      const progress = player?.getCurrentBufferProgress() ?? 0;
+      const progress = player?.getElapsedTime() ?? 0;
       const value = progress + (reverse ? -5 : 5);
       const time = Math.max(0, Math.min(value, audioDuration ?? 0));
       player?.setProgress(time);

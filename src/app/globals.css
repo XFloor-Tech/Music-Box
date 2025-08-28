@@ -13,12 +13,12 @@ body {
 body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  padding: 0;
+  margin: 0;
 }
 
 * {
   box-sizing: border-box;
-  padding: 0;
-  margin: 0;
 }
 
 a {
@@ -44,7 +44,7 @@ a {
   --color-card-foreground: var(--card-foreground);
   --color-popover: var(--popover);
   --color-popover-foreground: var(--popover-foreground);
-  --color-primary: var(--primary);
+  --color-primary: var(--pink);
   --color-primary-foreground: var(--primary-foreground);
   --color-secondary: var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);
@@ -98,8 +98,11 @@ a {
   --color-crust: var(--crust);
 
   --font-geist: var(--geist);
-  --text-xss: var(--text-xss-size);
-  --text-xss--line-height: var(--text-xss-line-height);
+  --text-xxs: var(--text-xxs-size);
+  --text-xxs--line-height: var(--text-xxs-line-height);
+
+  /* media */
+  --breakpoint-xs: 30rem;
 }
 
 :root {
@@ -167,13 +170,13 @@ a {
 
   --geist: 'Geist', sans-serif;
 
-  --text-xss-size: 10px;
-  --text-xss-line-height: 12px;
+  --text-xxs-size: 10px;
+  --text-xxs-line-height: 12px;
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
+  --background: var(--color-neutral-950);
+  --foreground: var(--color-neutral-50);
   --card: oklch(0.205 0 0);
   --card-foreground: oklch(0.985 0 0);
   --popover: oklch(0.205 0 0);

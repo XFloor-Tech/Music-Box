@@ -2,7 +2,9 @@ import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
 import { Provider } from 'jotai';
+import { ThemeProvider } from '@/components/theme-provider';
 
+// TODO: Maybe delete this declaration as we define fonts in globals.css
 const geistSans = Geist({
   variable: '--font-geist-sans',
   subsets: ['latin'],
@@ -24,9 +26,18 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang='en'>
+    <html lang='en' suppressHydrationWarning>
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
-        <Provider>{children}</Provider>
+        <Provider>
+          <ThemeProvider
+            attribute='class'
+            defaultTheme='system'
+            enableSystem
+            disableTransitionOnChange
+          >
+            {children}
+          </ThemeProvider>
+        </Provider>
       </body>
     </html>
   );

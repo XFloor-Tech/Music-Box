@@ -22,5 +22,6 @@ export interface IAudioPlayer {
   getIsLoaded(): boolean;
   getIsLooped(): boolean;
   getCurrentBufferProgress(): number | null;
+  getElapsedTime(): number;
   addListeners(listeners: AudioEventListener[]): void;
 }

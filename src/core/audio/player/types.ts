@@ -8,7 +8,7 @@ type AudioBufferStartParams = {
   type?: 'default' | 'loop' | 'progress';
 };
 
-type AudioEventType = 'start' | 'end' | 'pause' | 'resume';
+type AudioEventType = 'start' | 'end' | 'pause' | 'resume' | 'tick';
 type AudioEventListener = { event: AudioEventType; on: () => void };
 
 type AudioSettings = {
