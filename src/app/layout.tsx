@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
 import { Provider } from 'jotai';
 import { ThemeProvider } from '@/components/theme-provider';
+import { HeaderNavbar } from '@/components/layout/header/navbar';
 
 // TODO: Maybe delete this declaration as we define fonts in globals.css
 const geistSans = Geist({
@@ -35,7 +36,10 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
-            {children}
+            <div className='flex min-h-screen flex-col overflow-x-clip'>
+              <HeaderNavbar />
+              <main className='my-4 grow'>{children}</main>
+            </div>
           </ThemeProvider>
         </Provider>
       </body>
