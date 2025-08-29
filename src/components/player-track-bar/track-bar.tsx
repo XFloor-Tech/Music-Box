@@ -13,7 +13,7 @@ const PlayerTrackBar: FC = () => {
     useAudioPlayer();
 
   return (
-    <div className='sticky top-20 z-50 w-full self-start'>
+    <div className='sticky top-20 z-50 w-full self-start overflow-hidden'>
       <div className='flex h-14.5 justify-start gap-4 rounded-[16px] border border-neutral-600 bg-neutral-800 px-6 py-2.5 md:gap-6 lg:gap-10'>
         <div className='flex items-center justify-between gap-1 md:gap-2 lg:gap-3'>
           <Button
