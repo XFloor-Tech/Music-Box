@@ -38,7 +38,7 @@ export default function RootLayout({
           >
             <div className='flex min-h-screen flex-col overflow-x-clip'>
               <HeaderNavbar />
-              <main className='my-4 h-[1020px] grow'>{children}</main>
+              <main className='my-4 grow'>{children}</main>
             </div>
           </ThemeProvider>
         </Provider>

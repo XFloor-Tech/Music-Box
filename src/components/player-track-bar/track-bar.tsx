@@ -13,78 +13,80 @@ const PlayerTrackBar: FC = () => {
     useAudioPlayer();
 
   return (
-    <div className='sticky flex h-14.5 w-full flex-row justify-start gap-4 overflow-hidden rounded-[16px] border border-neutral-600 bg-neutral-800 px-6 py-2.5 align-middle md:gap-6 lg:gap-10'>
-      <div className='flex items-center justify-between gap-1 md:gap-2 lg:gap-3'>
-        <Button
-          className='group hidden md:block'
-          variant='ghost'
-          size='icon-sm'
-        >
-          <ChevronFirst
-            size={24}
-            className='text-primary group-hover:text-primary/90'
+    <div className='sticky top-20 z-50 w-full self-start'>
+      <div className='flex h-14.5 justify-start gap-4 rounded-[16px] border border-neutral-600 bg-neutral-800 px-6 py-2.5 md:gap-6 lg:gap-10'>
+        <div className='flex items-center justify-between gap-1 md:gap-2 lg:gap-3'>
+          <Button
+            className='group hidden md:block'
+            variant='ghost'
+            size='icon-sm'
+          >
+            <ChevronFirst
+              size={24}
+              className='text-primary group-hover:text-primary/90'
+            />
+          </Button>
+
+          <TrackPlayButton
+            states={states}
+            onPlay={play}
+            onPause={pause}
+            onResume={resume}
           />
-        </Button>
 
-        <TrackPlayButton
-          states={states}
-          onPlay={play}
-          onPause={pause}
-          onResume={resume}
-        />
+          <Button
+            className='group hidden md:block'
+            variant='ghost'
+            size='icon-sm'
+          >
+            <ChevronLast
+              size={24}
+              className='text-primary group-hover:text-primary/90'
+            />
+          </Button>
+        </div>
 
-        <Button
-          className='group hidden md:block'
-          variant='ghost'
-          size='icon-sm'
-        >
-          <ChevronLast
-            size={24}
-            className='text-primary group-hover:text-primary/90'
-          />
-        </Button>
-      </div>
+        <TrackRepeatShuffle states={states} onLoop={loop} />
 
-      <TrackRepeatShuffle states={states} onLoop={loop} />
+        <div className='flex flex-1 flex-col items-start gap-[6px]'>
+          <div className='flex w-full items-center justify-between'>
+            <div className='flex max-w-4/5 flex-col overflow-hidden'>
+              <p className='max-w-128 overflow-hidden text-xs font-semibold text-nowrap text-ellipsis text-neutral-50'>
+                Track name (feat. Other One)
+              </p>
+              <span className='text-xxs font-medium text-neutral-400'>
+                Artist Name
+              </span>
+            </div>
 
-      <div className='flex flex-1 flex-col items-start gap-[6px]'>
-        <div className='flex w-full items-center justify-between'>
-          <div className='flex max-w-4/5 flex-col overflow-hidden'>
-            <p className='max-w-128 overflow-hidden text-xs font-semibold text-nowrap text-ellipsis text-neutral-50'>
-              Track name (feat. Other One)
-            </p>
-            <span className='text-xxs font-medium text-neutral-400'>
-              Artist Name
+            <span className='text-xs text-nowrap whitespace-nowrap text-neutral-100'>
+              {progressFromRawValue(states.progress)}
             </span>
           </div>
 
-          <span className='text-xs text-nowrap whitespace-nowrap text-neutral-100'>
-            {progressFromRawValue(states.progress)}
-          </span>
+          <TrackProgressBar states={states} onChange={changeProgress} />
         </div>
 
-        <TrackProgressBar states={states} onChange={changeProgress} />
-      </div>
+        <div className='flex items-center md:gap-1 lg:gap-2'>
+          <TrackVolumeBar states={states} onChange={changeVolume} />
 
-      <div className='flex items-center md:gap-1 lg:gap-2'>
-        <TrackVolumeBar states={states} onChange={changeVolume} />
-
-        <Button
-          variant='ghost'
-          size='icon'
-          className='group hidden sm:inline-flex'
-        >
-          <Heart
-            size={16}
-            className='text-neutral-50 group-hover:text-neutral-50/90'
-          />
-        </Button>
-        <Button variant='ghost' size='icon' className='group'>
-          <Ellipsis
-            size={16}
-            className='text-neutral-50 group-hover:text-neutral-50/90'
-          />
-        </Button>
+          <Button
+            variant='ghost'
+            size='icon'
+            className='group hidden sm:inline-flex'
+          >
+            <Heart
+              size={16}
+              className='text-neutral-50 group-hover:text-neutral-50/90'
+            />
+          </Button>
+          <Button variant='ghost' size='icon' className='group'>
+            <Ellipsis
+              size={16}
+              className='text-neutral-50 group-hover:text-neutral-50/90'
+            />
+          </Button>
+        </div>
       </div>
     </div>
   );
