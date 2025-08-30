@@ -5,6 +5,7 @@ import {
   useDragControls,
   useMotionValue,
   useMotionValueEvent,
+  animate,
 } from 'framer-motion';
 
 const TrackBarMobile: FC = () => {
@@ -34,12 +35,13 @@ const TrackBarMobile: FC = () => {
       const currentHeight = height.get();
 
       if (info.velocity.y > 300 || currentHeight < maxHeight * 0.5) {
-        height.set(minHeight);
+        // height.set(minHeight);
+        animate(height, minHeight, { type: 'spring', damping: 25 });
         return;
       }
 
       if (currentHeight > maxHeight * 0.5) {
-        height.set(maxHeight);
+        animate(height, maxHeight, { type: 'spring', damping: 25 });
       }
     },
     [height, maxHeight],
@@ -50,7 +52,7 @@ const TrackBarMobile: FC = () => {
       style={{ height: expanded ? '100vh' : height }}
       transition={{ type: 'spring', damping: 20 }}
       // animate={{ height: expanded ? '100vh' : height }}
-      className='fixed bottom-0 left-0 z-75 w-full bg-white'
+      className='fixed bottom-0 left-0 z-75 w-full overflow-hidden bg-white'
       onPan={onPan}
       onPanEnd={onPanEnd}
     >
