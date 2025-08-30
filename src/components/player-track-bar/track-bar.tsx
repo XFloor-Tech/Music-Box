@@ -8,7 +8,7 @@ import { TrackVolumeBar } from './track-volume';
 import { progressFromRawValue } from './utils';
 import { TrackRepeatShuffle } from './track-repeat-shuffle';
 
-const PlayerTrackBar: FC = () => {
+const TrackBar: FC = () => {
   const { play, pause, resume, loop, states, changeProgress, changeVolume } =
     useAudioPlayer();
 
@@ -92,4 +92,4 @@ const PlayerTrackBar: FC = () => {
   );
 };
 
-export { PlayerTrackBar };
+export { TrackBar };
