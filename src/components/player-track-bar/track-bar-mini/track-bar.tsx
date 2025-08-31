@@ -5,20 +5,27 @@ import {
   useMotionValue,
   animate,
   AnimationPlaybackControlsWithThen,
+  useMotionValueEvent,
+  AnimatePresence,
 } from 'framer-motion';
 import { clamp } from 'lodash';
+import { TrackBarControls } from './track-bar-controls';
+import { BAR_HEIGHT, BAR_SNAP } from './constants';
+import { TrackBarContent } from './track-bar-content';
 
-const HEIGHT = 56;
-
-const TrackBarMobile: FC = () => {
+const TrackBarMini: FC = () => {
   const [expanded, setExpanded] = useState(false);
 
   const currentAnimationRef = useRef<AnimationPlaybackControlsWithThen>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
 
-  const height = useMotionValue(HEIGHT);
-  const minHeight = HEIGHT;
+  const height = useMotionValue(BAR_HEIGHT);
+  const minHeight = BAR_HEIGHT;
   const maxHeight = window.innerHeight;
+
+  useMotionValueEvent(height, 'change', (latest) => {
+    // maybe reduce set state on every change and think of somethink else
+    setExpanded(latest > maxHeight * BAR_SNAP);
+  });
 
   const expand = useCallback(
     (targetHeight: number) => {
@@ -47,12 +54,12 @@ const TrackBarMobile: FC = () => {
     (event: PointerEvent, info: PanInfo) => {
       const currentHeight = height.get();
 
-      if (info.velocity.y > 300 || currentHeight < maxHeight * 0.3) {
+      if (info.velocity.y > 300 || currentHeight < maxHeight * BAR_SNAP) {
         expand(minHeight);
         return;
       }
 
-      if (currentHeight > maxHeight * 0.3) {
+      if (currentHeight > maxHeight * BAR_SNAP) {
         expand(maxHeight);
       }
     },
@@ -61,10 +68,9 @@ const TrackBarMobile: FC = () => {
 
   return (
     <motion.div
-      ref={containerRef}
-      style={{ height: height }}
+      style={{ height }}
       transition={{ type: 'spring', damping: 20, bounce: 0 }}
-      className='fixed bottom-0 left-0 z-75 w-full overflow-hidden bg-white'
+      className='fixed bottom-0 left-0 z-75 w-full touch-none overflow-hidden bg-neutral-800'
       onPan={onPan}
       onPanStart={onPanStart}
       onPanEnd={onPanEnd}
@@ -73,10 +79,25 @@ const TrackBarMobile: FC = () => {
           expand(maxHeight);
         }
       }}
+      layout
     >
-      <div className='h-full cursor-grab bg-white' />
+      <AnimatePresence mode='wait'>
+        {!expanded && <TrackBarControls height={height} />}
+        {expanded && (
+          <motion.div
+            key='expanded'
+            layout
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className='h-full w-full'
+          >
+            <TrackBarContent height={height} />
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 };
 
-export { TrackBarMobile };
+export { TrackBarMini };

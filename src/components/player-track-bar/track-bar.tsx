@@ -7,6 +7,7 @@ import { TrackProgressBar } from './track-progress';
 import { TrackVolumeBar } from './track-volume';
 import { progressFromRawValue } from './utils';
 import { TrackRepeatShuffle } from './track-repeat-shuffle';
+import { TrackEllipsis } from './track-ellipsis';
 
 const TrackBar: FC = () => {
   const { play, pause, resume, loop, states, changeProgress, changeVolume } =
@@ -69,23 +70,7 @@ const TrackBar: FC = () => {
 
         <div className='flex items-center md:gap-1 lg:gap-2'>
           <TrackVolumeBar states={states} onChange={changeVolume} />
-
-          <Button
-            variant='ghost'
-            size='icon'
-            className='group hidden sm:inline-flex'
-          >
-            <Heart
-              size={16}
-              className='text-neutral-50 group-hover:text-neutral-50/90'
-            />
-          </Button>
-          <Button variant='ghost' size='icon' className='group'>
-            <Ellipsis
-              size={16}
-              className='text-neutral-50 group-hover:text-neutral-50/90'
-            />
-          </Button>
+          <TrackEllipsis />
         </div>
       </div>
     </div>
