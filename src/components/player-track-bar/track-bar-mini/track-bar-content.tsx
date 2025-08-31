@@ -1,28 +1,40 @@
-import { FC } from 'react';
+import { FC, useCallback } from 'react';
 import { MotionValue } from 'framer-motion';
-import { TrackProgressBar } from '../track-progress';
+import { TrackProgressBar } from '../components/track-progress';
 import { AudioSettingsStates } from '@/core/audio/types';
-import { TrackPlayButton } from '../track-play-button';
+import { TrackPlayButton } from '../components/track-play-button';
 import { Logo } from '@/components/logo';
 import { ChevronDown, ChevronFirst, ChevronLast } from 'lucide-react';
-import { TrackEllipsis } from '../track-ellipsis';
+import { TrackEllipsis } from '../components/track-ellipsis';
+import { Button } from '@/components/ui/button';
+import { BAR_HEIGHT } from './constants';
 
 type Props = {
   height: MotionValue<number>;
+  expand?: (targetHeight: number) => void;
 };
 
-const TrackBarContent: FC<Props> = () => {
+const TrackBarContent: FC<Props> = ({ expand }) => {
+  const onCollapse = useCallback(() => {
+    expand?.(BAR_HEIGHT);
+  }, [expand]);
+
   return (
-    <div className='flex h-full w-full flex-col px-4 py-6'>
+    <div className='xs:px-8 flex h-full w-full flex-col px-4 py-6'>
       <div className='flex h-fit w-full items-center justify-end'>
-        <div className='flex h-8 w-8 items-center justify-center rounded-full bg-neutral-50'>
+        <Button
+          variant='ghost'
+          size='icon'
+          onClick={onCollapse}
+          className='flex h-8 w-8 items-center justify-center rounded-full bg-neutral-50 hover:bg-neutral-300!'
+        >
           <ChevronDown size={32} className='text-pink' />
-        </div>
+        </Button>
       </div>
 
       <div className='flex h-full flex-col items-center justify-center gap-5'>
         <div className='flex w-full flex-col items-center gap-2'>
-          <div className='flex aspect-square h-auto w-full items-center justify-center bg-neutral-900'>
+          <div className='flex aspect-square h-auto w-full max-w-[380px] items-center justify-center bg-neutral-900'>
             <Logo className='h-20 w-20' />
           </div>
           <div className='flex flex-col items-center justify-center'>

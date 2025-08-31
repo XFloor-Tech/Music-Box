@@ -9,24 +9,27 @@ const sizes = {
   lg: '(width >= 64rem)', // 1024px
 } as Record<ScreenSize, string>;
 
+const getSize = () => {
+  if (typeof window === 'undefined') return null;
+
+  let s: ScreenSize = 'xs';
+  for (const [size, media] of Object.entries(sizes)) {
+    if (window.matchMedia(media).matches) {
+      s = size as ScreenSize;
+      continue;
+    }
+    break;
+  }
+
+  return s;
+};
+
 const useScreenSize = () => {
-  const [size, setSize] = useState<ScreenSize>('md');
+  const [size, setSize] = useState<ScreenSize | null>(null);
 
   useEffect(() => {
-    if (typeof window === 'undefined') {
-      return;
-    }
-
     const onResize = () => {
-      let s: ScreenSize = 'xs';
-      for (const [size, media] of Object.entries(sizes)) {
-        if (window.matchMedia(media).matches) {
-          s = size as ScreenSize;
-          continue;
-        }
-        break;
-      }
-      setSize(s);
+      setSize(getSize());
     };
 
     window.addEventListener('resize', onResize);
@@ -40,4 +43,4 @@ const useScreenSize = () => {
   return size;
 };
 
-export { useScreenSize };
+export { getSize, useScreenSize };

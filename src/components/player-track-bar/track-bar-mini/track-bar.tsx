@@ -1,4 +1,4 @@
-import { FC, useCallback, useLayoutEffect, useRef, useState } from 'react';
+import { FC, useCallback, useRef, useState } from 'react';
 import {
   motion,
   PanInfo,
@@ -92,7 +92,7 @@ const TrackBarMini: FC = () => {
             exit={{ opacity: 0 }}
             className='h-full w-full'
           >
-            <TrackBarContent height={height} />
+            <TrackBarContent height={height} expand={expand} />
           </motion.div>
         )}
       </AnimatePresence>

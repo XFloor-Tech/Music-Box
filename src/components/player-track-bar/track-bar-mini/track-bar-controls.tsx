@@ -1,15 +1,10 @@
 import { FC, useMemo } from 'react';
 
-import {
-  motion,
-  MotionValue,
-  useMotionValue,
-  useTransform,
-} from 'framer-motion';
+import { motion, MotionValue, useTransform } from 'framer-motion';
 import { BAR_HEIGHT, BAR_SNAP } from './constants';
-import { TrackPlayButton } from '../track-play-button';
+import { TrackPlayButton } from '../components/track-play-button';
 import { AudioSettingsStates } from '@/core/audio/types';
-import { TrackEllipsis } from '../track-ellipsis';
+import { TrackEllipsis } from '../components/track-ellipsis';
 
 type Props = {
   height: MotionValue<number>;
@@ -52,7 +47,7 @@ const TrackBarControls: FC<Props> = ({ height }) => {
         </motion.div>
 
         <motion.div style={{ opacity: nameOpacity }}>
-          <div className='flex w-fit flex-col items-start justify-center'>
+          <div className='flex w-fit flex-col items-start justify-center select-none'>
             <span className='text-xs font-semibold text-neutral-50'>
               Track name (feat. Other One)
             </span>

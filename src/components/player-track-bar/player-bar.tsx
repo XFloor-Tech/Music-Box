@@ -6,6 +6,10 @@ import { TrackBarMini } from './track-bar-mini/track-bar';
 const PlayerBar: FC = () => {
   const size = useScreenSize();
 
+  if (!size) {
+    return null;
+  }
+
   if (size === 'xs') {
     return <TrackBarMini />;
   }

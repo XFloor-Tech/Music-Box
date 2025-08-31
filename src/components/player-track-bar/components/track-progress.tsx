@@ -6,9 +6,10 @@ import {
   useRef,
   useState,
 } from 'react';
-import { Slider } from '../ui/slider';
-import { progressFromRawValue } from './utils';
+import { Slider } from '../../ui/slider';
+import { progressFromRawValue } from '../utils';
 import { AudioSettingsStates } from '@/core/audio/types';
+import { useScreenSize } from '@/utils/screen-size';
 
 type Props = {
   states: AudioSettingsStates;
@@ -24,6 +25,8 @@ const TrackProgressBar: FC<Props> = ({ states, onChange }) => {
   const tipRef = useRef<HTMLDivElement | null>(null);
 
   const dragTimeoutRef = useRef<NodeJS.Timeout | undefined>(undefined);
+
+  const size = useScreenSize();
 
   const onValueChange = useCallback((value: number[]) => {
     setProgress(value);
@@ -97,7 +100,7 @@ const TrackProgressBar: FC<Props> = ({ states, onChange }) => {
       ref={sliderRef}
       onValueChange={onValueChange}
       onValueCommit={onValueCommit}
-      thumbless
+      thumbless={size !== 'xs'}
     >
       <div
         className={`${showTip ? 'flex' : 'hidden'} text-text absolute bottom-1 z-20 flex-col items-center text-sm`}

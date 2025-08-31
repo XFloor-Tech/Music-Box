@@ -1,8 +1,8 @@
 import { Volume1, Volume2, VolumeX } from 'lucide-react';
 import { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Button } from '../ui/button';
-import { Slider } from '../ui/slider';
 import { AudioSettingsStates } from '@/core/audio/types';
+import { Button } from '@components/ui/button';
+import { Slider } from '@components/ui/slider';
 
 type Props = {
   states: AudioSettingsStates;

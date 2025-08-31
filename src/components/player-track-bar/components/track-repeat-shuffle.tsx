@@ -1,6 +1,6 @@
 import { Repeat, Shuffle } from 'lucide-react';
 import { FC, useCallback, useEffect, useState } from 'react';
-import { Button } from '../ui/button';
+import { Button } from '../../ui/button';
 import { AudioSettingsStates } from '@/core/audio/types';
 
 type Props = {

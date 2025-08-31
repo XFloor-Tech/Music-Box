@@ -1,7 +1,7 @@
 import { cn } from '@/lib/utils';
 import { Heart, Ellipsis } from 'lucide-react';
 import { FC } from 'react';
-import { Button } from '../ui/button';
+import { Button } from '../../ui/button';
 
 type Props = {
   className?: string;
