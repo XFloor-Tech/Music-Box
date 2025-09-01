@@ -1,4 +1,5 @@
 const BAR_HEIGHT = 56;
 const BAR_SNAP = 0.3;
+const BAR_PROGRESS = 4;
 
-export { BAR_HEIGHT, BAR_SNAP };
+export { BAR_HEIGHT, BAR_SNAP, BAR_PROGRESS };

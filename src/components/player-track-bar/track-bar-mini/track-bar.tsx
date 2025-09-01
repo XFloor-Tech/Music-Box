@@ -10,17 +10,21 @@ import {
 } from 'framer-motion';
 import { clamp } from 'lodash';
 import { TrackBarControls } from './track-bar-controls';
-import { BAR_HEIGHT, BAR_SNAP } from './constants';
+import { BAR_HEIGHT, BAR_PROGRESS, BAR_SNAP } from './constants';
 import { TrackBarContent } from './track-bar-content';
+import { useAudioPlayer } from '@/core/audio/useAudioPlayer';
+import { TrackProgressMini } from './track-progress-mini';
 
 const TrackBarMini: FC = () => {
+  const { states } = useAudioPlayer();
+
   const [expanded, setExpanded] = useState(false);
 
   const currentAnimationRef = useRef<AnimationPlaybackControlsWithThen>(null);
 
-  const height = useMotionValue(BAR_HEIGHT);
-  const minHeight = BAR_HEIGHT;
+  const minHeight = BAR_HEIGHT + BAR_PROGRESS;
   const maxHeight = window.innerHeight;
+  const height = useMotionValue(minHeight);
 
   useMotionValueEvent(height, 'change', (latest) => {
     // maybe reduce set state on every change and think of somethink else
@@ -70,7 +74,7 @@ const TrackBarMini: FC = () => {
     <motion.div
       style={{ height }}
       transition={{ type: 'spring', damping: 20, bounce: 0 }}
-      className='fixed bottom-0 left-0 z-75 w-full touch-none overflow-hidden bg-neutral-800'
+      className='fixed bottom-0 left-0 z-75 flex w-full touch-none flex-col overflow-hidden bg-neutral-800'
       onPan={onPan}
       onPanStart={onPanStart}
       onPanEnd={onPanEnd}
@@ -81,6 +85,8 @@ const TrackBarMini: FC = () => {
       }}
       layout
     >
+      <TrackProgressMini height={height} states={states} />
+
       <AnimatePresence mode='wait'>
         {!expanded && <TrackBarControls height={height} />}
         {expanded && (
