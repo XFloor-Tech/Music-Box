@@ -3,14 +3,16 @@ import { FC, useMemo } from 'react';
 import { motion, MotionValue, useTransform } from 'framer-motion';
 import { BAR_HEIGHT, BAR_SNAP } from './constants';
 import { TrackPlayButton } from '../components/track-play-button';
-import { AudioSettingsStates } from '@/core/audio/types';
 import { TrackEllipsis } from '../components/track-ellipsis';
+import { useAudioPlayer } from '@/core/audio/useAudioPlayer';
 
 type Props = {
   height: MotionValue<number>;
 };
 
 const TrackBarControls: FC<Props> = ({ height }) => {
+  const { play, pause, states, resume } = useAudioPlayer();
+
   const maxHeight = window.innerHeight;
 
   const playInputRange = useMemo<number[]>(
@@ -43,7 +45,12 @@ const TrackBarControls: FC<Props> = ({ height }) => {
         <motion.div
           style={{ x: playX, opacity: playOpacity, scale: playScale }}
         >
-          <TrackPlayButton states={{} as AudioSettingsStates} />
+          <TrackPlayButton
+            states={states}
+            onPlay={play}
+            onPause={pause}
+            onResume={resume}
+          />
         </motion.div>
 
         <motion.div style={{ opacity: nameOpacity }}>

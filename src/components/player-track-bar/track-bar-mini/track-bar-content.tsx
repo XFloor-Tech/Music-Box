@@ -1,27 +1,41 @@
 import { FC, useCallback } from 'react';
-import { MotionValue } from 'framer-motion';
+import { motion, MotionValue, useTransform } from 'framer-motion';
 import { TrackProgressBar } from '../components/track-progress';
-import { AudioSettingsStates } from '@/core/audio/types';
 import { TrackPlayButton } from '../components/track-play-button';
 import { Logo } from '@/components/logo';
 import { ChevronDown, ChevronFirst, ChevronLast } from 'lucide-react';
 import { TrackEllipsis } from '../components/track-ellipsis';
 import { Button } from '@/components/ui/button';
 import { BAR_HEIGHT } from './constants';
+import { useAudioPlayer } from '@/core/audio/useAudioPlayer';
+import { progressFromRawValue } from '../utils';
 
 type Props = {
   height: MotionValue<number>;
   expand?: (targetHeight: number) => void;
 };
 
-const TrackBarContent: FC<Props> = ({ expand }) => {
+const TrackBarContent: FC<Props> = ({ height, expand }) => {
+  const { play, pause, resume, states, changeProgress } = useAudioPlayer();
+
   const onCollapse = useCallback(() => {
     expand?.(BAR_HEIGHT);
   }, [expand]);
 
+  const maxHeight = window.innerHeight;
+
+  const collapseOpacity = useTransform(
+    height,
+    [maxHeight, maxHeight - BAR_HEIGHT, maxHeight - BAR_HEIGHT * 2],
+    [1, 0.2, 0],
+  );
+
   return (
     <div className='xs:px-8 flex h-full w-full flex-col px-4 py-6'>
-      <div className='flex h-fit w-full items-center justify-end'>
+      <motion.div
+        style={{ opacity: collapseOpacity }}
+        className='flex h-fit w-full items-center justify-end'
+      >
         <Button
           variant='ghost'
           size='icon'
@@ -30,7 +44,7 @@ const TrackBarContent: FC<Props> = ({ expand }) => {
         >
           <ChevronDown size={32} className='text-pink' />
         </Button>
-      </div>
+      </motion.div>
 
       <div className='flex h-full flex-col items-center justify-center gap-5'>
         <div className='flex w-full flex-col items-center gap-2'>
@@ -49,9 +63,13 @@ const TrackBarContent: FC<Props> = ({ expand }) => {
           <TrackEllipsis className='gap-1' classNameHeart='inline-flex' />
 
           <div className='flex w-full items-center gap-3'>
-            <span className='text-xs text-neutral-100'>1:12</span>
-            <TrackProgressBar states={{} as AudioSettingsStates} />
-            <span className='text-xs text-neutral-100'>8:52</span>
+            <span className='text-xs text-neutral-100'>
+              {progressFromRawValue(states.progress)}
+            </span>
+            <TrackProgressBar states={states} onChange={changeProgress} />
+            <span className='text-xs text-neutral-100'>
+              {progressFromRawValue(states.duration)}
+            </span>
           </div>
         </div>
 
@@ -59,7 +77,10 @@ const TrackBarContent: FC<Props> = ({ expand }) => {
           <ChevronFirst className='text-pink' size={36} />
 
           <TrackPlayButton
-            states={{} as AudioSettingsStates}
+            states={states}
+            onPlay={play}
+            onPause={pause}
+            onResume={resume}
             className='h-16 w-16'
             size={42}
           />

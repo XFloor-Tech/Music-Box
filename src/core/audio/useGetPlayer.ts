@@ -7,7 +7,11 @@ import { AudioScaffoldParams } from './player/types';
 
 const audioPlayerRef = { current: null } as { current: AudioPlayer | null };
 
-const useGetPlayerRef = () => {
+type GetPlayerOptions = {
+  unmountReset?: boolean;
+};
+
+const useGetPlayerRef = (options?: GetPlayerOptions) => {
   const audioSettings = useAtomValue(audioSettingsAtom);
 
   // Wait until component is mounted to have access to window.AudioContext on client side
@@ -27,7 +31,10 @@ const useGetPlayerRef = () => {
 
     // Close context and remove instance on unmount
     return () => {
-      audioPlayerRef.current?.close();
+      if (options?.unmountReset) {
+        audioPlayerRef.current?.close();
+        audioPlayerRef.current = null;
+      }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps -- only on mount
   }, []);
