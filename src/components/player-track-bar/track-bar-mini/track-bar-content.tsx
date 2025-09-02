@@ -1,4 +1,4 @@
-import { FC, useCallback } from 'react';
+import { FC, useCallback, useState } from 'react';
 import { motion, MotionValue, useTransform } from 'framer-motion';
 import { TrackProgressBar } from '../components/track-progress';
 import { TrackPlayButton } from '../components/track-play-button';
@@ -6,7 +6,7 @@ import { Logo } from '@/components/logo';
 import { ChevronDown, ChevronFirst, ChevronLast } from 'lucide-react';
 import { TrackEllipsis } from '../components/track-ellipsis';
 import { Button } from '@/components/ui/button';
-import { BAR_HEIGHT } from './constants';
+import { BAR_HEIGHT, BAR_PROGRESS } from './constants';
 import { useAudioPlayer } from '@/core/audio/useAudioPlayer';
 import { progressFromRawValue } from '../utils';
 
@@ -18,8 +18,11 @@ type Props = {
 const TrackBarContent: FC<Props> = ({ height, expand }) => {
   const { play, pause, resume, states, changeProgress } = useAudioPlayer();
 
+  // progress to commit while dragging progress thumb
+  const [commitProgress, setCommitProgress] = useState<number | null>(null);
+
   const onCollapse = useCallback(() => {
-    expand?.(BAR_HEIGHT);
+    expand?.(BAR_HEIGHT + BAR_PROGRESS);
   }, [expand]);
 
   const maxHeight = window.innerHeight;
@@ -28,6 +31,18 @@ const TrackBarContent: FC<Props> = ({ height, expand }) => {
     height,
     [maxHeight, maxHeight - BAR_HEIGHT, maxHeight - BAR_HEIGHT * 2],
     [1, 0.2, 0],
+  );
+
+  const onProgressChange = useCallback((value: number) => {
+    setCommitProgress(value);
+  }, []);
+
+  const onProgressCommit = useCallback(
+    (value: number) => {
+      setCommitProgress(null);
+      changeProgress(value);
+    },
+    [changeProgress],
   );
 
   return (
@@ -64,9 +79,15 @@ const TrackBarContent: FC<Props> = ({ height, expand }) => {
 
           <div className='flex w-full items-center gap-3'>
             <span className='text-xs text-neutral-100'>
-              {progressFromRawValue(states.progress)}
+              {progressFromRawValue(commitProgress ?? states.progress)}
             </span>
-            <TrackProgressBar states={states} onChange={changeProgress} />
+            <TrackProgressBar
+              states={states}
+              onChange={onProgressCommit}
+              onProgressChange={onProgressChange}
+              hideTip
+              className='size-4'
+            />
             <span className='text-xs text-neutral-100'>
               {progressFromRawValue(states.duration)}
             </span>

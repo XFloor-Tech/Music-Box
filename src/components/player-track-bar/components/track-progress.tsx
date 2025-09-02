@@ -14,9 +14,18 @@ import { useScreenSize } from '@/utils/screen-size';
 type Props = {
   states: AudioSettingsStates;
   onChange?: (value: number) => void;
+  onProgressChange?: (value: number) => void;
+  hideTip?: boolean;
+  className?: string;
 };
 
-const TrackProgressBar: FC<Props> = ({ states, onChange }) => {
+const TrackProgressBar: FC<Props> = ({
+  states,
+  onChange,
+  onProgressChange,
+  hideTip,
+  className,
+}) => {
   const [progress, setProgress] = useState([states.progress]);
   const [dragging, setDragging] = useState(false);
   const [moving, setMoving] = useState(false);
@@ -28,9 +37,13 @@ const TrackProgressBar: FC<Props> = ({ states, onChange }) => {
 
   const size = useScreenSize();
 
-  const onValueChange = useCallback((value: number[]) => {
-    setProgress(value);
-  }, []);
+  const onValueChange = useCallback(
+    (value: number[]) => {
+      onProgressChange?.(value[0]);
+      setProgress(value);
+    },
+    [onProgressChange],
+  );
 
   const onValueCommit = useCallback(
     (value: number[]) => {
@@ -86,8 +99,8 @@ const TrackProgressBar: FC<Props> = ({ states, onChange }) => {
   );
 
   const showTip = useMemo(
-    () => states.isLoaded && moving,
-    [moving, states.isLoaded],
+    () => states.isLoaded && moving && !hideTip,
+    [moving, states, hideTip],
   );
 
   return (
@@ -101,6 +114,7 @@ const TrackProgressBar: FC<Props> = ({ states, onChange }) => {
       onValueChange={onValueChange}
       onValueCommit={onValueCommit}
       thumbless={size !== 'xs'}
+      thumbClassName={className}
     >
       <div
         className={`${showTip ? 'flex' : 'hidden'} text-text absolute bottom-1 z-20 flex-col items-center text-sm`}
