@@ -1,14 +1,15 @@
 import { useAudioPlayer } from '@/core/audio/useAudioPlayer';
-import { ChevronFirst, ChevronLast, Ellipsis, Heart } from 'lucide-react';
+import { ChevronFirst, ChevronLast } from 'lucide-react';
 import { FC } from 'react';
 import { Button } from '../ui/button';
-import { TrackPlayButton } from './track-play-button';
-import { TrackProgressBar } from './track-progress';
-import { TrackVolumeBar } from './track-volume';
+import { TrackPlayButton } from './components/track-play-button';
+import { TrackProgressBar } from './components/track-progress';
+import { TrackVolumeBar } from './components/track-volume';
 import { progressFromRawValue } from './utils';
-import { TrackRepeatShuffle } from './track-repeat-shuffle';
+import { TrackRepeatShuffle } from './components/track-repeat-shuffle';
+import { TrackEllipsis } from './components/track-ellipsis';
 
-const PlayerTrackBar: FC = () => {
+const TrackBar: FC = () => {
   const { play, pause, resume, loop, states, changeProgress, changeVolume } =
     useAudioPlayer();
 
@@ -69,27 +70,11 @@ const PlayerTrackBar: FC = () => {
 
         <div className='flex items-center md:gap-1 lg:gap-2'>
           <TrackVolumeBar states={states} onChange={changeVolume} />
-
-          <Button
-            variant='ghost'
-            size='icon'
-            className='group hidden sm:inline-flex'
-          >
-            <Heart
-              size={16}
-              className='text-neutral-50 group-hover:text-neutral-50/90'
-            />
-          </Button>
-          <Button variant='ghost' size='icon' className='group'>
-            <Ellipsis
-              size={16}
-              className='text-neutral-50 group-hover:text-neutral-50/90'
-            />
-          </Button>
+          <TrackEllipsis />
         </div>
       </div>
     </div>
   );
 };
 
-export { PlayerTrackBar };
+export { TrackBar };

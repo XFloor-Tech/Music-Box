@@ -8,16 +8,18 @@ import { ReactNode, useMemo } from 'react';
 type Props = {
   thumbless?: boolean;
   children?: ReactNode;
+  thumbClassName?: string;
 };
 
 function Slider({
   className,
   defaultValue,
   value,
+  children,
+  thumbClassName,
   min = 0,
   max = 100,
   thumbless = false,
-  children,
   ...props
 }: React.ComponentProps<typeof SliderPrimitive.Root> & Props) {
   const _values = useMemo(
@@ -62,7 +64,10 @@ function Slider({
           <SliderPrimitive.Thumb
             data-slot='slider-thumb'
             key={index}
-            className='bg-background ring-ring/50 block size-2 shrink-0 rounded-full border border-neutral-400 opacity-0 shadow-sm transition-[color,box-shadow,opacity] group-hover:opacity-100 group-active:opacity-100 hover:ring-4 focus-visible:ring-4 focus-visible:outline-hidden disabled:pointer-events-none md:size-3 lg:size-4'
+            className={cn(
+              'bg-background ring-ring/50 block size-2 shrink-0 rounded-full border border-neutral-400 opacity-0 shadow-sm transition-[color,box-shadow,opacity] group-hover:opacity-100 group-active:opacity-100 hover:ring-4 focus-visible:ring-4 focus-visible:outline-hidden disabled:pointer-events-none md:size-3 lg:size-4',
+              thumbClassName,
+            )}
           />
         ))}
 

@@ -116,6 +116,8 @@ class AudioPlayer implements IAudioPlayer {
   }
 
   public invalidateAudioBufferSource() {
+    if (!this._loaded) return;
+
     this._loaded = false;
     this._audioBufferSource.stop();
     this._audioBufferSource.disconnect();
