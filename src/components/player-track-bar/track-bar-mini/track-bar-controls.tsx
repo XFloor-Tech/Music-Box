@@ -1,7 +1,7 @@
 import { FC, useMemo } from 'react';
 
 import { motion, MotionValue, useTransform } from 'framer-motion';
-import { BAR_HEIGHT, BAR_SNAP } from './constants';
+import { BAR_HEIGHT, BAR_PLAY_BUTTON, BAR_SNAP } from './constants';
 import { TrackPlayButton } from '../components/track-play-button';
 import { TrackEllipsis } from '../components/track-ellipsis';
 import { useAudioPlayer } from '@/core/audio/useAudioPlayer';
@@ -26,8 +26,8 @@ const TrackBarControls: FC<Props> = ({ height }) => {
 
   const playX = useTransform(height, playInputRange, [
     0,
-    window.innerWidth / 2 + 12 - 36 * 2,
-    window.innerWidth / 2 - 36 + 12,
+    window.innerWidth / 2 + 12 - BAR_PLAY_BUTTON * 2,
+    window.innerWidth / 2 + 12 - BAR_PLAY_BUTTON,
   ]);
   const playY = useTransform(height, playInputRange, [0, -50, -75]);
   const playOpacity = useTransform(height, playInputRange, [1, 0.5, 0]);
